@@ -41,7 +41,7 @@ func (s Service) processOrderStateCallback(ctx context.Context, bot *tg.BotAPI, 
 		}
 	}
 
-	err = s.updateOrderMessage(ctx, bot, messageId, true)
+	err = s.updateOrderMessage(ctx, messageId, true)
 	if err != nil {
 		return fmt.Errorf("failed to update order message: %w", err)
 	}
@@ -62,7 +62,7 @@ func (s Service) processOrderEditStateCallback(ctx context.Context, bot *tg.BotA
 		return fmt.Errorf("failed to update order state(%s): %w", state, err)
 	}
 
-	err = s.updateOrderMessage(ctx, bot, messageId, true)
+	err = s.updateOrderMessage(ctx, messageId, true)
 	if err != nil {
 		return fmt.Errorf("failed to update order message: %w", err)
 	}

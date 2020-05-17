@@ -3,12 +3,12 @@ package service
 import (
 	"context"
 	"fmt"
-	"github.com/firefly-crm/fireflycrm-bot-backend/common/logger"
+	"github.com/firefly-crm/common/logger"
 	"github.com/firefly-crm/fireflycrm-bot-backend/types"
 	tg "github.com/go-telegram-bot-api/telegram-bot-api"
 )
 
-func (s Service) updateOrderMessage(ctx context.Context, bot *tg.BotAPI, messageId uint64, flowCompleted bool) error {
+func (s Service) updateOrderMessage(ctx context.Context, messageId uint64, flowCompleted bool) error {
 	log := logger.FromContext(ctx)
 
 	order, err := s.OrderBook.GetOrderByMessageId(ctx, messageId)
@@ -48,7 +48,7 @@ func (s Service) updateOrderMessage(ctx context.Context, bot *tg.BotAPI, message
 	}
 	editMessage.ReplyMarkup = &markup
 
-	_, err = bot.Send(editMessage)
+	_, err = s.Bot.Send(editMessage)
 	if err != nil {
 		return fmt.Errorf("failed to send message: %w", err)
 	}

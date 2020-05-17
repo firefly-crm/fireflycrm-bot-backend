@@ -3,16 +3,16 @@ package service
 import (
 	"context"
 	"fmt"
-	"github.com/firefly-crm/fireflycrm-bot-backend/common/logger"
+	"github.com/badoux/checkmail"
+	"github.com/firefly-crm/common/logger"
 	"github.com/firefly-crm/fireflycrm-bot-backend/types"
 	tg "github.com/go-telegram-bot-api/telegram-bot-api"
-	"github.com/badoux/checkmail"
 	"regexp"
 	"strconv"
 	"strings"
 )
 
-func (s Service) processPrompt(ctx context.Context, bot *tg.BotAPI, update tg.Update) error {
+func (s Service) processPrompt(ctx context.Context, update tg.Update) error {
 	log := logger.FromContext(ctx)
 
 	userId := uint64(update.Message.From.ID)
@@ -32,7 +32,7 @@ func (s Service) processPrompt(ctx context.Context, bot *tg.BotAPI, update tg.Up
 
 	defer func() {
 		if deleteHint {
-			err = s.deleteHint(ctx, bot, activeOrder)
+			err = s.deleteHint(ctx, activeOrder)
 			if err != nil {
 				log.Errorf("failed to remove hint: %v", err)
 			}
@@ -45,13 +45,13 @@ func (s Service) processPrompt(ctx context.Context, bot *tg.BotAPI, update tg.Up
 			}
 		}
 
-		err = s.updateOrderMessage(ctx, bot, activeMessageId, flowCompleted)
+		err = s.updateOrderMessage(ctx, activeMessageId, flowCompleted)
 		if err != nil {
 			log.Errorf("failed to update order message: %v", err)
 		}
 
 		delMessage := tg.NewDeleteMessage(update.Message.Chat.ID, update.Message.MessageID)
-		_, err := bot.Send(delMessage)
+		_, err := s.Bot.Send(delMessage)
 		if err != nil {
 			log.Errorf("failed to delete message: %v", err)
 		}
@@ -80,7 +80,7 @@ func (s Service) processPrompt(ctx context.Context, bot *tg.BotAPI, update tg.Up
 		}
 
 		if !item.Initialised {
-			err := s.setWaitingForPrice(ctx, bot, activeOrder)
+			err := s.setWaitingForPrice(ctx, activeOrder)
 			if err != nil {
 				return fmt.Errorf("failed to change order state: %w", err)
 			}
@@ -148,7 +148,7 @@ func (s Service) processPrompt(ctx context.Context, bot *tg.BotAPI, update tg.Up
 			return fmt.Errorf("failed to parse amount: %w", err)
 		}
 
-		err = s.processPaymentCallback(ctx, bot, activeMessageId, uint32(amount*100))
+		err = s.processPaymentCallback(ctx, activeMessageId, uint32(amount*100))
 		if err != nil {
 			return fmt.Errorf("failed to proces payment callback")
 		}
@@ -164,7 +164,7 @@ func (s Service) processPrompt(ctx context.Context, bot *tg.BotAPI, update tg.Up
 			return fmt.Errorf("failed to parse amount: %w", err)
 		}
 
-		err = s.processRefundCallback(ctx, bot, activeOrder, activeMessageId, uint32(amount*100))
+		err = s.processRefundCallback(ctx, activeOrder, activeMessageId, uint32(amount*100))
 		if err != nil {
 			return fmt.Errorf("failed to proces refund callback")
 		}

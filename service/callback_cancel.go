@@ -53,12 +53,12 @@ func (s Service) processCancelCallback(ctx context.Context, bot *tg.BotAPI, call
 		}
 	}
 
-	err = s.updateOrderMessage(ctx, bot, messageId, true)
+	err = s.updateOrderMessage(ctx, messageId, true)
 	if err != nil {
 		return fmt.Errorf("failed to update order message: %w", err)
 	}
 
-	err = s.deleteHint(ctx, bot, order)
+	err = s.deleteHint(ctx, order)
 	if err != nil {
 		return fmt.Errorf("failed to delete hint: %w", err)
 	}

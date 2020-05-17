@@ -3,14 +3,14 @@ package service
 import (
 	"context"
 	"fmt"
-	"github.com/firefly-crm/fireflycrm-bot-backend/common/logger"
 	mb "github.com/DarthRamone/modulbank-go"
+	"github.com/firefly-crm/common/logger"
 	tg "github.com/go-telegram-bot-api/telegram-bot-api"
 	"net/http"
 	"time"
 )
 
-func (s Service) startPaymentsWatcher(ctx context.Context, bot *tg.BotAPI) {
+func (s Service) startPaymentsWatcher(ctx context.Context) {
 	log := logger.FromContext(ctx)
 
 	ticker := time.NewTicker(time.Minute * 1)
@@ -24,7 +24,7 @@ outsideLoop:
 		case <-ctx.Done():
 			break outsideLoop
 		case <-ticker.C:
-			err := s.checkPayments(ctx, bot)
+			err := s.checkPayments(ctx)
 			if err != nil {
 				log.Errorf("failed to check payments: %v", err.Error())
 			}
@@ -32,7 +32,7 @@ outsideLoop:
 	}
 }
 
-func (s Service) checkPayments(ctx context.Context, bot *tg.BotAPI) error {
+func (s Service) checkPayments(ctx context.Context) error {
 	log := logger.FromContext(ctx)
 
 	payments, err := s.OrderBook.GetBankPayments(ctx)
@@ -87,13 +87,13 @@ func (s Service) checkPayments(ctx context.Context, bot *tg.BotAPI) error {
 			msg := tg.NewMessage(int64(user.Id), "Заказ оплачен")
 			msg.ReplyToMessageID = int(messages[0].Id)
 			msg.ReplyMarkup = notifyReadInlineKeyboard()
-			_, err = bot.Send(msg)
+			_, err = s.Bot.Send(msg)
 			if err != nil {
 				log.Errorf("failed to send message to chat: %v", err)
 				continue
 			}
 
-			err = s.updateOrderMessage(ctx, bot, messages[0].Id, true)
+			err = s.updateOrderMessage(ctx, messages[0].Id, true)
 			if err != nil {
 				log.Errorf("failed to update order message: %v", err)
 				continue

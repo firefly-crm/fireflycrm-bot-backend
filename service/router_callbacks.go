@@ -3,7 +3,7 @@ package service
 import (
 	"context"
 	"fmt"
-	"github.com/firefly-crm/fireflycrm-bot-backend/common/logger"
+	"github.com/firefly-crm/common/logger"
 	"github.com/firefly-crm/fireflycrm-bot-backend/types"
 	tg "github.com/go-telegram-bot-api/telegram-bot-api"
 	"strconv"
@@ -37,14 +37,12 @@ func (s Service) processCallback(ctx context.Context, bot *tg.BotAPI, update tg.
 	switch callbackData {
 	case kbDataItems:
 		markup = orderItemsInlineKeyboard()
-		break
 	case kbDataBack:
 		var err error
 		markup, err = startOrderInlineKeyboard(ctx, s, messageId)
 		if err != nil {
 			return fmt.Errorf("failed to get order inline kb: %w", err)
 		}
-		break
 	case kbDataCancel:
 		var err error
 		markup, err = startOrderInlineKeyboard(ctx, s, messageId)
@@ -55,42 +53,38 @@ func (s Service) processCallback(ctx context.Context, bot *tg.BotAPI, update tg.
 		if err != nil {
 			return fmt.Errorf("failed to process cancel callback: %w", err)
 		}
-		break
 	case kbDataAddItem:
 		markup = cancelInlineKeyboard()
-		err := s.processAddItemCallack(ctx, bot, callbackQuery)
+		err := s.processAddItemCallack(ctx, callbackQuery)
 		if err != nil {
 			return fmt.Errorf("failed to process add item callback: %w", err)
 		}
-		break
 	case kbDataRemoveItem:
 		var err error
 		markup, err = itemsListInlineKeyboard(ctx, s, messageId, "remove")
 		if err != nil {
 			return fmt.Errorf("failed to get markup for remove items list: %w", err)
 		}
-		break
 	case kbDataEditItem:
 		var err error
 		markup, err = itemsListInlineKeyboard(ctx, s, messageId, "edit")
 		if err != nil {
 			return fmt.Errorf("failed to get markup for edit items list: %w", err)
 		}
-		break
 	case kbDataCustomer:
 		var err error
 		markup, err = customerInlineKeyboard(ctx, s, messageId)
 		if err != nil {
 			return fmt.Errorf("failed to get markup for customer action: %w", err)
 		}
-		break
+
 	case kbDataPayment:
 		var err error
 		markup, err = paymentInlineKeyboard(ctx, s, messageId)
 		if err != nil {
 			return fmt.Errorf("failed to get payment inlint markup: %w", err)
 		}
-		break
+
 	case kbDataPaymentCard:
 		var err error
 		err = s.processAddPaymentCallback(ctx, callbackQuery, types.PaymentMethodCard2Card)
@@ -101,7 +95,7 @@ func (s Service) processCallback(ctx context.Context, bot *tg.BotAPI, update tg.
 		if err != nil {
 			return fmt.Errorf("faield to get payment amount inline markup: %w", err)
 		}
-		break
+
 	case kbDataPaymentCash:
 		var err error
 		err = s.processAddPaymentCallback(ctx, callbackQuery, types.PaymentMethodCash)
@@ -112,7 +106,7 @@ func (s Service) processCallback(ctx context.Context, bot *tg.BotAPI, update tg.
 		if err != nil {
 			return fmt.Errorf("faield to get payment amount inline markup: %w", err)
 		}
-		break
+
 	case kbDataPaymentLink:
 		var err error
 		err = s.processAddPaymentCallback(ctx, callbackQuery, types.PaymentMethodAcquiring)
@@ -123,9 +117,9 @@ func (s Service) processCallback(ctx context.Context, bot *tg.BotAPI, update tg.
 		if err != nil {
 			return fmt.Errorf("faield to get payment amount inline markup: %w", err)
 		}
-		break
+
 	case kbDataFullPayment:
-		err := s.processPaymentCallback(ctx, bot, messageId, 0)
+		err := s.processPaymentCallback(ctx, messageId, 0)
 		if err != nil {
 			return fmt.Errorf("failed to process full payment callback: %w", err)
 		}
@@ -133,14 +127,14 @@ func (s Service) processCallback(ctx context.Context, bot *tg.BotAPI, update tg.
 		if err != nil {
 			return fmt.Errorf("failed to get order inline kb: %w", err)
 		}
-		break
+
 	case kbDataPartialPayment:
 		markup = cancelInlineKeyboard()
-		err := s.processPartialPaymentCallback(ctx, bot, callbackQuery)
+		err := s.processPartialPaymentCallback(ctx, callbackQuery)
 		if err != nil {
 			return fmt.Errorf("failed to process partial payment callback: %w", err)
 		}
-		break
+
 	case kbDataRefundPayment:
 		var err error
 		markup, err = paymentsListInlineKeyboard(ctx, s, messageId, "refund")
@@ -149,7 +143,7 @@ func (s Service) processCallback(ctx context.Context, bot *tg.BotAPI, update tg.
 		}
 	case kbDataPartialRefund:
 		markup = cancelInlineKeyboard()
-		err := s.processPartialRefundCallback(ctx, bot, callbackQuery)
+		err := s.processPartialRefundCallback(ctx, callbackQuery)
 		if err != nil {
 			return fmt.Errorf("failed to process partial refund callback: %w", err)
 		}
@@ -158,7 +152,7 @@ func (s Service) processCallback(ctx context.Context, bot *tg.BotAPI, update tg.
 		if err != nil {
 			return fmt.Errorf("failed to get order: %w", err)
 		}
-		err = s.processRefundCallback(ctx, bot, order, messageId, 0)
+		err = s.processRefundCallback(ctx, order, messageId, 0)
 		if err != nil {
 			return fmt.Errorf("failed to process refund callback: %w", err)
 		}
@@ -238,7 +232,7 @@ func (s Service) processCallback(ctx context.Context, bot *tg.BotAPI, update tg.
 	case kbDataDelivery:
 		fallthrough
 	case kbDataLingerieSet:
-		err := s.processAddKnownItem(ctx, bot, callbackQuery, callbackData)
+		err := s.processAddKnownItem(ctx, callbackQuery, callbackData)
 		if err != nil {
 			return fmt.Errorf("failed to process add item callback: %w", err)
 		}
@@ -256,19 +250,19 @@ func (s Service) processCallback(ctx context.Context, bot *tg.BotAPI, update tg.
 			switch args[2] {
 			case "email":
 				markup = cancelInlineKeyboard()
-				err := s.processCustomerEditEmail(ctx, bot, callbackQuery)
+				err := s.processCustomerEditEmail(ctx, callbackQuery)
 				if err != nil {
 					return fmt.Errorf("failed to process customer edit name callback: %w", err)
 				}
 			case kbDataInstagram:
 				markup = cancelInlineKeyboard()
-				err := s.processCustomerEditInstagram(ctx, bot, callbackQuery)
+				err := s.processCustomerEditInstagram(ctx, callbackQuery)
 				if err != nil {
 					return fmt.Errorf("failed to process customer edit instagram callback: %w", err)
 				}
 			case "phone":
 				markup = cancelInlineKeyboard()
-				err := s.processCustomerEditPhone(ctx, bot, callbackQuery)
+				err := s.processCustomerEditPhone(ctx, callbackQuery)
 				if err != nil {
 					return fmt.Errorf("faield to process customer edit phone callback: %w", err)
 				}
@@ -292,7 +286,7 @@ func (s Service) processCallback(ctx context.Context, bot *tg.BotAPI, update tg.
 				if err != nil {
 					return fmt.Errorf("failed to get order inline kb: %w", err)
 				}
-				break
+
 			case "refund":
 				order, err := s.OrderBook.GetOrderByMessageId(ctx, messageId)
 				if err != nil {
@@ -303,7 +297,7 @@ func (s Service) processCallback(ctx context.Context, bot *tg.BotAPI, update tg.
 					return fmt.Errorf("failed to set active refund payment: %w", err)
 				}
 				markup = refundAmountInlineKeyboard()
-				break
+
 			}
 		}
 
@@ -319,7 +313,7 @@ func (s Service) processCallback(ctx context.Context, bot *tg.BotAPI, update tg.
 				}
 
 				if action == "remove" {
-					err := s.processItemRemove(ctx, bot, callbackQuery, id)
+					err := s.processItemRemove(ctx, callbackQuery, id)
 					if err != nil {
 						return fmt.Errorf("failed to remove item: %w", err)
 					}
@@ -335,19 +329,19 @@ func (s Service) processCallback(ctx context.Context, bot *tg.BotAPI, update tg.
 				switch args[2] {
 				case "qty":
 					markup = cancelInlineKeyboard()
-					err = s.processItemEditQty(ctx, bot, callbackQuery, id)
+					err = s.processItemEditQty(ctx, callbackQuery, id)
 					if err != nil {
 						return fmt.Errorf("failed to process item edit qty callback: %w", err)
 					}
 				case "name":
 					markup = cancelInlineKeyboard()
-					err = s.processItemEditName(ctx, bot, callbackQuery, id)
+					err = s.processItemEditName(ctx, callbackQuery, id)
 					if err != nil {
 						return fmt.Errorf("failed to process item edit name callback: %w", err)
 					}
 				case "price":
 					markup = cancelInlineKeyboard()
-					err = s.processItemEditPrice(ctx, bot, callbackQuery, id)
+					err = s.processItemEditPrice(ctx, callbackQuery, id)
 					if err != nil {
 						return fmt.Errorf("failed to process item edit price callback: %w", err)
 					}
@@ -362,7 +356,7 @@ func (s Service) processCallback(ctx context.Context, bot *tg.BotAPI, update tg.
 	} else {
 		msg = tg.NewDeleteMessage(chatId, int(messageId))
 	}
-	_, err = bot.Send(msg)
+	_, err = s.Bot.Send(msg)
 	if err != nil {
 		return fmt.Errorf("failed to send message: %w", err)
 	}

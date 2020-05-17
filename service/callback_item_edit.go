@@ -7,7 +7,7 @@ import (
 	tg "github.com/go-telegram-bot-api/telegram-bot-api"
 )
 
-func (s Service) processItemEditQty(ctx context.Context, bot *tg.BotAPI, callbackQuery *tg.CallbackQuery, itemId uint64) error {
+func (s Service) processItemEditQty(ctx context.Context, callbackQuery *tg.CallbackQuery, itemId uint64) error {
 	chatId := callbackQuery.Message.Chat.ID
 	messageId := callbackQuery.Message.MessageID
 
@@ -16,7 +16,7 @@ func (s Service) processItemEditQty(ctx context.Context, bot *tg.BotAPI, callbac
 		return fmt.Errorf("failed to get order by message id: %w", err)
 	}
 	hintMessage := tg.NewMessage(chatId, replyEnterItemQty)
-	hint, err := bot.Send(hintMessage)
+	hint, err := s.Bot.Send(hintMessage)
 	if err != nil {
 		return fmt.Errorf("failed to send message: %w", err)
 	}
@@ -39,7 +39,7 @@ func (s Service) processItemEditQty(ctx context.Context, bot *tg.BotAPI, callbac
 	return nil
 }
 
-func (s Service) processItemEditPrice(ctx context.Context, bot *tg.BotAPI, callbackQuery *tg.CallbackQuery, itemId uint64) error {
+func (s Service) processItemEditPrice(ctx context.Context, callbackQuery *tg.CallbackQuery, itemId uint64) error {
 	chatId := callbackQuery.Message.Chat.ID
 	messageId := callbackQuery.Message.MessageID
 
@@ -48,7 +48,7 @@ func (s Service) processItemEditPrice(ctx context.Context, bot *tg.BotAPI, callb
 		return fmt.Errorf("failed to get order by message id: %w", err)
 	}
 	hintMessage := tg.NewMessage(chatId, replyEnterItemPrice)
-	hint, err := bot.Send(hintMessage)
+	hint, err := s.Bot.Send(hintMessage)
 	if err != nil {
 		return fmt.Errorf("failed to send message: %w", err)
 	}
@@ -71,7 +71,7 @@ func (s Service) processItemEditPrice(ctx context.Context, bot *tg.BotAPI, callb
 	return nil
 }
 
-func (s Service) processItemEditName(ctx context.Context, bot *tg.BotAPI, callbackQuery *tg.CallbackQuery, itemId uint64) error {
+func (s Service) processItemEditName(ctx context.Context, callbackQuery *tg.CallbackQuery, itemId uint64) error {
 	chatId := callbackQuery.Message.Chat.ID
 	messageId := callbackQuery.Message.MessageID
 
@@ -80,7 +80,7 @@ func (s Service) processItemEditName(ctx context.Context, bot *tg.BotAPI, callba
 		return fmt.Errorf("failed to get order by message id: %w", err)
 	}
 	hintMessage := tg.NewMessage(chatId, replyEnterItemName)
-	hint, err := bot.Send(hintMessage)
+	hint, err := s.Bot.Send(hintMessage)
 	if err != nil {
 		return fmt.Errorf("failed to send message: %w", err)
 	}

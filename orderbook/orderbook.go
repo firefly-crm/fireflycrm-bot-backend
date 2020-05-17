@@ -2,8 +2,8 @@ package orderbook
 
 import (
 	"context"
-	"github.com/DarthRamone/fireflycrm-bot/storage"
-	"github.com/DarthRamone/fireflycrm-bot/types"
+	"github.com/firefly-crm/fireflycrm-bot-backend/storage"
+	"github.com/firefly-crm/fireflycrm-bot-backend/types"
 )
 
 type (

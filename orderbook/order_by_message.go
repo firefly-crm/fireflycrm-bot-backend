@@ -2,7 +2,7 @@ package orderbook
 
 import (
 	"context"
-	"github.com/DarthRamone/fireflycrm-bot/types"
+	"github.com/firefly-crm/fireflycrm-bot-backend/types"
 )
 
 func (o orderBook) GetOrderByMessageId(ctx context.Context, messageId uint64) (order types.Order, err error) {

@@ -3,12 +3,12 @@ package service
 import (
 	"context"
 	"fmt"
-	"github.com/firefly-crm/fireflycrm-bot-backend/common/logger"
+	"github.com/firefly-crm/common/logger"
 	"github.com/firefly-crm/fireflycrm-bot-backend/types"
 	tg "github.com/go-telegram-bot-api/telegram-bot-api"
 )
 
-func (s Service) processPaymentRefund(ctx context.Context, bot *tg.BotAPI, callbackQuery *tg.CallbackQuery, paymentId uint64, amount uint32) error {
+func (s Service) processPaymentRefund(ctx context.Context, callbackQuery *tg.CallbackQuery, paymentId uint64, amount uint32) error {
 	messageId := uint64(callbackQuery.Message.MessageID)
 
 	err := s.OrderBook.RefundPayment(ctx, paymentId, amount)
@@ -16,7 +16,7 @@ func (s Service) processPaymentRefund(ctx context.Context, bot *tg.BotAPI, callb
 		return fmt.Errorf("failed to remove payment: %w", err)
 	}
 
-	err = s.updateOrderMessage(ctx, bot, messageId, true)
+	err = s.updateOrderMessage(ctx, messageId, true)
 	if err != nil {
 		return fmt.Errorf("failed to refresh order message: %w", err)
 	}
@@ -24,7 +24,7 @@ func (s Service) processPaymentRefund(ctx context.Context, bot *tg.BotAPI, callb
 	return nil
 }
 
-func (s Service) processRefundCallback(ctx context.Context, bot *tg.BotAPI, order types.Order, messageId uint64, amount uint32) error {
+func (s Service) processRefundCallback(ctx context.Context, order types.Order, messageId uint64, amount uint32) error {
 	log := logger.FromContext(ctx)
 
 	//TODO: Refund payment at ModulBank
@@ -43,7 +43,7 @@ func (s Service) processRefundCallback(ctx context.Context, bot *tg.BotAPI, orde
 	}
 
 	defer func() {
-		if err := s.deleteHint(ctx, bot, order); err != nil {
+		if err := s.deleteHint(ctx, order); err != nil {
 			log.Errorf("failed to delete hint: %v", err.Error())
 		}
 	}()
@@ -53,7 +53,7 @@ func (s Service) processRefundCallback(ctx context.Context, bot *tg.BotAPI, orde
 		return fmt.Errorf("failed to refund payment: %w", err)
 	}
 
-	err = s.updateOrderMessage(ctx, bot, messageId, true)
+	err = s.updateOrderMessage(ctx, messageId, true)
 	if err != nil {
 		return fmt.Errorf("failed to update order message: %w", err)
 	}
@@ -61,7 +61,7 @@ func (s Service) processRefundCallback(ctx context.Context, bot *tg.BotAPI, orde
 	return nil
 }
 
-func (s Service) processPartialRefundCallback(ctx context.Context, bot *tg.BotAPI, cbq *tg.CallbackQuery) error {
+func (s Service) processPartialRefundCallback(ctx context.Context, cbq *tg.CallbackQuery) error {
 	chatId := cbq.Message.Chat.ID
 	messageId := cbq.Message.MessageID
 
@@ -70,7 +70,7 @@ func (s Service) processPartialRefundCallback(ctx context.Context, bot *tg.BotAP
 		return fmt.Errorf("failed to get order by message id: %w", err)
 	}
 	hintMessage := tg.NewMessage(chatId, replyEnterAmount)
-	hint, err := bot.Send(hintMessage)
+	hint, err := s.Bot.Send(hintMessage)
 	if err != nil {
 		return fmt.Errorf("failed to send message: %w", err)
 	}

@@ -15,7 +15,7 @@ func (s Service) processOrderDisplayModeCallback(ctx context.Context, bot *tg.Bo
 		return fmt.Errorf("failed to update display mode: %w", err)
 	}
 
-	err = s.updateOrderMessage(ctx, bot, messageId, true)
+	err = s.updateOrderMessage(ctx, messageId, true)
 	if err != nil {
 		return fmt.Errorf("failed to update order message: %w", err)
 	}

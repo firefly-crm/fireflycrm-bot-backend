@@ -231,7 +231,7 @@ func (o Order) getFullMessageString(c *Customer) string {
 			email := strings.Replace(c.Email.String, "_", "\\_", -1)
 			result += fmt.Sprintf("\n*E-Mail:* %s", email)
 		} else {
-			result += fmt.Sprintf("\n*E-Mail:* ‼️ Данные не заполнены")
+			result += "\n*E-Mail:* ‼️ Данные не заполнены"
 		}
 
 		if c.Phone.Valid {
@@ -282,7 +282,7 @@ func (p Payment) MessageString(id int) string {
 			payedAt := p.PayedAt.Time.In(loc).Format("02 Jan 2006 15:04")
 			result += fmt.Sprintf("\n*Оплачен:* %s", payedAt)
 		} else {
-			result += fmt.Sprintf("\n*Оплачен:* нет")
+			result += "\n*Оплачен:* нет"
 		}
 	} else {
 		payedAt := p.PayedAt.Time.In(loc).Format("02 Jan 2006 15:04")
@@ -292,7 +292,7 @@ func (p Payment) MessageString(id int) string {
 	if p.RefundAmount != 0 {
 		refundAmount := float32(p.RefundAmount) / 100.0
 		if p.RefundAmount == p.Amount {
-			result += fmt.Sprintf("\n*Возвращен:* в полном объеме")
+			result += "\n*Возвращен:* в полном объеме"
 		} else {
 			result += fmt.Sprintf("\n*Возвращено:* %.2f₽", refundAmount)
 		}

@@ -2,7 +2,7 @@ package orderbook
 
 import (
 	"context"
-	"github.com/DarthRamone/fireflycrm-bot/types"
+	"github.com/firefly-crm/fireflycrm-bot-backend/types"
 )
 
 func (ob orderBook) UpdateOrderEditState(ctx context.Context, orderId uint64, state types.EditState) error {

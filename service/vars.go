@@ -34,7 +34,6 @@ var (
 	kbOrderRestore         = "Восстановить"
 	kbOrderCollapse        = "Свернуть"
 	kbOrderExpand          = "Развернуть"
-	kbDelivery             = "Доставка"
 	kbOk                   = "OK"
 	kbLingerieSetPictogram = "👙"
 	kbDeliveryPictogram    = "🚚"

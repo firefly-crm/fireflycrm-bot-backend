@@ -6,7 +6,7 @@ import (
 	tg "github.com/go-telegram-bot-api/telegram-bot-api"
 )
 
-func (s Service) createUser(ctx context.Context, bot *tg.BotAPI, update tg.Update) error {
+func (s Service) createUser(ctx context.Context, update tg.Update) error {
 	userId := uint64(update.Message.From.ID)
 	err := s.Users.CreateUser(ctx, userId)
 	if err != nil {
@@ -14,7 +14,7 @@ func (s Service) createUser(ctx context.Context, bot *tg.BotAPI, update tg.Updat
 	}
 	msg := tg.NewMessage(update.Message.Chat.ID, replyWelcome)
 	msg.ReplyMarkup = merchantStandByKeyboardMarkup()
-	_, err = bot.Send(msg)
+	_, err = s.Bot.Send(msg)
 	if err != nil {
 		return fmt.Errorf("failed to send welcome message: %w")
 	}

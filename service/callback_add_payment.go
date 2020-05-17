@@ -3,7 +3,7 @@ package service
 import (
 	"context"
 	"fmt"
-	"github.com/firefly-crm/fireflycrm-bot-backend/common/logger"
+	"github.com/firefly-crm/common/logger"
 	"github.com/firefly-crm/fireflycrm-bot-backend/types"
 	tg "github.com/go-telegram-bot-api/telegram-bot-api"
 )
@@ -24,7 +24,7 @@ func (s Service) processAddPaymentCallback(ctx context.Context, cbq *tg.Callback
 	return nil
 }
 
-func (s Service) processPartialPaymentCallback(ctx context.Context, bot *tg.BotAPI, cbq *tg.CallbackQuery) error {
+func (s Service) processPartialPaymentCallback(ctx context.Context, cbq *tg.CallbackQuery) error {
 	chatId := cbq.Message.Chat.ID
 	messageId := cbq.Message.MessageID
 
@@ -33,7 +33,7 @@ func (s Service) processPartialPaymentCallback(ctx context.Context, bot *tg.BotA
 		return fmt.Errorf("failed to get order by message id: %w", err)
 	}
 	hintMessage := tg.NewMessage(chatId, replyEnterAmount)
-	hint, err := bot.Send(hintMessage)
+	hint, err := s.Bot.Send(hintMessage)
 	if err != nil {
 		return fmt.Errorf("failed to send message: %w", err)
 	}
@@ -52,7 +52,7 @@ func (s Service) processPartialPaymentCallback(ctx context.Context, bot *tg.BotA
 }
 
 //if amount is 0 then full payment
-func (s Service) processPaymentCallback(ctx context.Context, bot *tg.BotAPI, messageId uint64, amount uint32) error {
+func (s Service) processPaymentCallback(ctx context.Context, messageId uint64, amount uint32) error {
 	log := logger.FromContext(ctx)
 
 	order, err := s.OrderBook.GetOrderByMessageId(ctx, messageId)
@@ -78,7 +78,7 @@ func (s Service) processPaymentCallback(ctx context.Context, bot *tg.BotAPI, mes
 	}
 
 	defer func() {
-		if err := s.deleteHint(ctx, bot, order); err != nil {
+		if err := s.deleteHint(ctx, order); err != nil {
 			log.Errorf("failed to delete hint: %v", err.Error())
 		}
 	}()
@@ -95,7 +95,7 @@ func (s Service) processPaymentCallback(ctx context.Context, bot *tg.BotAPI, mes
 		}
 	}
 
-	err = s.updateOrderMessage(ctx, bot, messageId, true)
+	err = s.updateOrderMessage(ctx, messageId, true)
 	if err != nil {
 		return fmt.Errorf("failed to update order message: %w", err)
 	}

@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-func (s Service) registerMerchant(ctx context.Context, bot *tg.BotAPI, update tg.Update) error {
+func (s Service) registerMerchant(ctx context.Context, update tg.Update) error {
 	cmd := update.Message.Text
 	userId := uint64(update.Message.From.ID)
 
@@ -25,7 +25,7 @@ func (s Service) registerMerchant(ctx context.Context, bot *tg.BotAPI, update tg
 	}
 
 	deleteMessage := tg.NewDeleteMessage(update.Message.Chat.ID, update.Message.MessageID)
-	_, err = bot.DeleteMessage(deleteMessage)
+	_, err = s.Bot.DeleteMessage(deleteMessage)
 	if err != nil {
 		return fmt.Errorf("failed to delete command message: %w", err)
 	}
@@ -34,7 +34,7 @@ func (s Service) registerMerchant(ctx context.Context, bot *tg.BotAPI, update tg
 	msg.ReplyMarkup = merchantStandByKeyboardMarkup()
 	msg.ParseMode = "markdown"
 
-	_, err = bot.Send(msg)
+	_, err = s.Bot.Send(msg)
 	if err != nil {
 		return fmt.Errorf("failed to send message: %w", err)
 	}

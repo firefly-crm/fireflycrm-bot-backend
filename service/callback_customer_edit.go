@@ -7,7 +7,7 @@ import (
 	tg "github.com/go-telegram-bot-api/telegram-bot-api"
 )
 
-func (s Service) processCustomerEditInstagram(ctx context.Context, bot *tg.BotAPI, callbackQuery *tg.CallbackQuery) error {
+func (s Service) processCustomerEditInstagram(ctx context.Context, callbackQuery *tg.CallbackQuery) error {
 	chatId := callbackQuery.Message.Chat.ID
 	messageId := callbackQuery.Message.MessageID
 
@@ -16,7 +16,7 @@ func (s Service) processCustomerEditInstagram(ctx context.Context, bot *tg.BotAP
 		return fmt.Errorf("failed to get order by message id: %w", err)
 	}
 	hintMessage := tg.NewMessage(chatId, replyEnterCustomerInstagram)
-	hint, err := bot.Send(hintMessage)
+	hint, err := s.Bot.Send(hintMessage)
 	if err != nil {
 		return fmt.Errorf("failed to send message: %w", err)
 	}
@@ -34,7 +34,7 @@ func (s Service) processCustomerEditInstagram(ctx context.Context, bot *tg.BotAP
 	return nil
 }
 
-func (s Service) processCustomerEditEmail(ctx context.Context, bot *tg.BotAPI, callbackQuery *tg.CallbackQuery) error {
+func (s Service) processCustomerEditEmail(ctx context.Context, callbackQuery *tg.CallbackQuery) error {
 	chatId := callbackQuery.Message.Chat.ID
 	messageId := callbackQuery.Message.MessageID
 
@@ -43,7 +43,7 @@ func (s Service) processCustomerEditEmail(ctx context.Context, bot *tg.BotAPI, c
 		return fmt.Errorf("failed to get order by message id: %w", err)
 	}
 	hintMessage := tg.NewMessage(chatId, replyEnterCustomerEmail)
-	hint, err := bot.Send(hintMessage)
+	hint, err := s.Bot.Send(hintMessage)
 	if err != nil {
 		return fmt.Errorf("failed to send message: %w", err)
 	}
@@ -61,7 +61,7 @@ func (s Service) processCustomerEditEmail(ctx context.Context, bot *tg.BotAPI, c
 	return nil
 }
 
-func (s Service) processCustomerEditPhone(ctx context.Context, bot *tg.BotAPI, callbackQuery *tg.CallbackQuery) error {
+func (s Service) processCustomerEditPhone(ctx context.Context, callbackQuery *tg.CallbackQuery) error {
 	chatId := callbackQuery.Message.Chat.ID
 	messageId := callbackQuery.Message.MessageID
 
@@ -70,7 +70,7 @@ func (s Service) processCustomerEditPhone(ctx context.Context, bot *tg.BotAPI, c
 		return fmt.Errorf("failed to get order by message id: %w", err)
 	}
 	hintMessage := tg.NewMessage(chatId, replyEnterCustomerPhone)
-	hint, err := bot.Send(hintMessage)
+	hint, err := s.Bot.Send(hintMessage)
 	if err != nil {
 		return fmt.Errorf("failed to send message: %w", err)
 	}

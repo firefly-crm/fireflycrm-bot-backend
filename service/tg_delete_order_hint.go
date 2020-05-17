@@ -3,12 +3,12 @@ package service
 import (
 	"context"
 	"fmt"
-	"github.com/firefly-crm/fireflycrm-bot-backend/common/logger"
+	"github.com/firefly-crm/common/logger"
 	"github.com/firefly-crm/fireflycrm-bot-backend/types"
 	tg "github.com/go-telegram-bot-api/telegram-bot-api"
 )
 
-func (s Service) deleteHint(ctx context.Context, bot *tg.BotAPI, order types.Order) error {
+func (s Service) deleteHint(ctx context.Context, order types.Order) error {
 	log := logger.FromContext(ctx)
 
 	if !order.HintMessageId.Valid {
@@ -17,7 +17,7 @@ func (s Service) deleteHint(ctx context.Context, bot *tg.BotAPI, order types.Ord
 	}
 
 	deleteMessage := tg.NewDeleteMessage(int64(order.UserId), int(order.HintMessageId.Int64))
-	_, err := bot.Send(deleteMessage)
+	_, err := s.Bot.Send(deleteMessage)
 	if err != nil {
 		return fmt.Errorf("failed to delete hind: %w", err)
 	}

@@ -3,11 +3,11 @@ package service
 import (
 	"context"
 	"fmt"
-	"github.com/firefly-crm/fireflycrm-bot-backend/common/logger"
+	"github.com/firefly-crm/common/logger"
 	tg "github.com/go-telegram-bot-api/telegram-bot-api"
 )
 
-func (s Service) createOrder(ctx context.Context, bot *tg.BotAPI, update tg.Update) error {
+func (s Service) createOrder(ctx context.Context, update tg.Update) error {
 	log := logger.FromContext(ctx)
 
 	userId := uint64(update.Message.From.ID)
@@ -20,7 +20,7 @@ func (s Service) createOrder(ctx context.Context, bot *tg.BotAPI, update tg.Upda
 	messageText := fmt.Sprintf(`*Заказ №%d*`, orderId)
 
 	deleteMessage := tg.NewDeleteMessage(update.Message.Chat.ID, update.Message.MessageID)
-	_, err = bot.DeleteMessage(deleteMessage)
+	_, err = s.Bot.DeleteMessage(deleteMessage)
 	if err != nil {
 		log.Warnf("failed to delete command message: %v", err)
 	}
@@ -29,7 +29,7 @@ func (s Service) createOrder(ctx context.Context, bot *tg.BotAPI, update tg.Upda
 	msg.ParseMode = "markdown"
 
 	var orderMessage tg.Message
-	orderMessage, err = bot.Send(msg)
+	orderMessage, err = s.Bot.Send(msg)
 	if err != nil {
 		return fmt.Errorf("failed to send message: %w", err)
 	}
@@ -45,7 +45,7 @@ func (s Service) createOrder(ctx context.Context, bot *tg.BotAPI, update tg.Upda
 	}
 
 	editMessage := tg.NewEditMessageReplyMarkup(update.Message.Chat.ID, orderMessage.MessageID, messageReplyMarkup)
-	_, err = bot.Send(editMessage)
+	_, err = s.Bot.Send(editMessage)
 	if err != nil {
 		return fmt.Errorf("failed to set new markup: %w", err)
 	}

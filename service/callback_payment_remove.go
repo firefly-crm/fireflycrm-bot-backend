@@ -14,7 +14,7 @@ func (s Service) processPaymentRemove(ctx context.Context, bot *tg.BotAPI, callb
 		return fmt.Errorf("failed to remove payment: %w", err)
 	}
 
-	err = s.updateOrderMessage(ctx, bot, messageId, true)
+	err = s.updateOrderMessage(ctx, messageId, true)
 	if err != nil {
 		return fmt.Errorf("failed to refresh order message: %w", err)
 	}

@@ -1,17 +1,16 @@
 package service
 
 import (
-	"context"
-	"github.com/firefly-crm/fireflycrm-bot-backend/billmaker"
 	"github.com/firefly-crm/fireflycrm-bot-backend/orderbook"
 	"github.com/firefly-crm/fireflycrm-bot-backend/storage"
 	"github.com/firefly-crm/fireflycrm-bot-backend/users"
+	tg "github.com/go-telegram-bot-api/telegram-bot-api"
 )
 
 type (
 	Service struct {
+		Bot       *tg.BotAPI
 		OrderBook orderbook.OrderBook
-		BillMaker billmaker.BillMaker
 		Users     users.Users
 		Storage   storage.Storage
 	}
@@ -20,9 +19,3 @@ type (
 		TelegramToken string
 	}
 )
-
-func (s Service) Serve(ctx context.Context, opts Options) error {
-	bot := s.startListenTGUpdates(ctx, opts.TelegramToken)
-	s.startPaymentsWatcher(ctx, bot)
-	return nil
-}

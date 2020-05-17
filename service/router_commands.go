@@ -3,7 +3,7 @@ package service
 import (
 	"context"
 	"fmt"
-	"github.com/firefly-crm/fireflycrm-bot-backend/common/logger"
+	"github.com/firefly-crm/common/logger"
 	tg "github.com/go-telegram-bot-api/telegram-bot-api"
 	"strings"
 )
@@ -22,14 +22,14 @@ func (s Service) processCommand(ctx context.Context, bot *tg.BotAPI, update tg.U
 	ctx = logger.ToContext(ctx, log)
 
 	if cmd == "/start" {
-		err = s.createUser(ctx, bot, update)
+		err = s.createUser(ctx, update)
 	} else if cmd == kbCreateOrder {
-		err = s.createOrder(ctx, bot, update)
+		err = s.createOrder(ctx, update)
 	} else if strings.HasPrefix(cmd, "/registerAsMerchant") {
-		err = s.registerMerchant(ctx, bot, update)
+		err = s.registerMerchant(ctx, update)
 	} else if cmd == kbActiveOrders {
 	} else {
-		err = s.processPrompt(ctx, bot, update)
+		err = s.processPrompt(ctx, update)
 	}
 
 	if err != nil {
