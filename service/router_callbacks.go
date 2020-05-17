@@ -9,7 +9,7 @@ import (
 	tg "github.com/go-telegram-bot-api/telegram-bot-api"
 )
 
-func (s Service) processCallback(ctx context.Context, callbackEvent *tp.CallbackEvent) (err error) {
+func (s Service) ProcessCallbackEvent(ctx context.Context, callbackEvent *tp.CallbackEvent) (err error) {
 	userId := callbackEvent.UserId
 	messageId := callbackEvent.MessageId
 	event := callbackEvent.Event

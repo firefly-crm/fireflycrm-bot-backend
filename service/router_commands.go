@@ -7,7 +7,7 @@ import (
 	tp "github.com/firefly-crm/common/messages/telegram"
 )
 
-func (s Service) processCommand(ctx context.Context, commandEvent *tp.CommandEvent) error {
+func (s Service) ProcessCommandEvent(ctx context.Context, commandEvent *tp.CommandEvent) error {
 	var err error
 
 	log := logger.

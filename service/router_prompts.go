@@ -13,7 +13,7 @@ import (
 	"strings"
 )
 
-func (s Service) processPrompt(ctx context.Context, promptEvent *tp.PromptEvent) error {
+func (s Service) ProcessPromptEvent(ctx context.Context, promptEvent *tp.PromptEvent) error {
 	log := logger.FromContext(ctx)
 
 	userId := promptEvent.UserId
