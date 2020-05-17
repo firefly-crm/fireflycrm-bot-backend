@@ -5,7 +5,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"github.com/DarthRamone/fireflycrm-bot/types"
+	"github.com/firefly-crm/fireflycrm-bot-backend/types"
 	"github.com/jmoiron/sqlx"
 	"log"
 	"time"
