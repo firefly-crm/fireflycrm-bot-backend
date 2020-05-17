@@ -9,7 +9,7 @@ import (
 	tg "github.com/go-telegram-bot-api/telegram-bot-api"
 )
 
-func (s Service) processCancelCallback(ctx context.Context, bot *tg.BotAPI, callbackQuery *tg.CallbackQuery) error {
+func (s Service) processCancelCallback(ctx context.Context, callbackQuery *tg.CallbackQuery) error {
 	messageId := uint64(callbackQuery.Message.MessageID)
 
 	order, err := s.OrderBook.GetOrderByMessageId(ctx, messageId)

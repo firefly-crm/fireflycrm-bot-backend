@@ -6,7 +6,7 @@ import (
 	tg "github.com/go-telegram-bot-api/telegram-bot-api"
 )
 
-func (s Service) processPaymentRemove(ctx context.Context, bot *tg.BotAPI, callbackQuery *tg.CallbackQuery, paymentId uint64) error {
+func (s Service) processPaymentRemove(ctx context.Context, callbackQuery *tg.CallbackQuery, paymentId uint64) error {
 	messageId := uint64(callbackQuery.Message.MessageID)
 
 	err := s.OrderBook.RemovePayment(ctx, paymentId)

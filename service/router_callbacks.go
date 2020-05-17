@@ -10,7 +10,7 @@ import (
 	"strings"
 )
 
-func (s Service) processCallback(ctx context.Context, bot *tg.BotAPI, update tg.Update) error {
+func (s Service) processCallback(ctx context.Context, update tg.Update) error {
 	callbackQuery := update.CallbackQuery
 	chatId := callbackQuery.Message.Chat.ID
 	messageId := uint64(callbackQuery.Message.MessageID)
@@ -49,7 +49,7 @@ func (s Service) processCallback(ctx context.Context, bot *tg.BotAPI, update tg.
 		if err != nil {
 			return fmt.Errorf("failed to get order inline kb: %w", err)
 		}
-		err = s.processCancelCallback(ctx, bot, callbackQuery)
+		err = s.processCancelCallback(ctx, callbackQuery)
 		if err != nil {
 			return fmt.Errorf("failed to process cancel callback: %w", err)
 		}
@@ -173,7 +173,7 @@ func (s Service) processCallback(ctx context.Context, bot *tg.BotAPI, update tg.
 			return fmt.Errorf("failed to get order actions markup: %w", err)
 		}
 	case kbDataOrderDone:
-		err := s.processOrderStateCallback(ctx, bot, callbackQuery, types.OrderStateDone)
+		err := s.processOrderStateCallback(ctx, callbackQuery, types.OrderStateDone)
 		if err != nil {
 			return fmt.Errorf("failed to process order done callback: %w", err)
 		}
@@ -182,7 +182,7 @@ func (s Service) processCallback(ctx context.Context, bot *tg.BotAPI, update tg.
 			return fmt.Errorf("failed to get order inline kb: %w", err)
 		}
 	case kbDataOrderRestart:
-		err := s.processOrderStateCallback(ctx, bot, callbackQuery, types.OrderStateForming)
+		err := s.processOrderStateCallback(ctx, callbackQuery, types.OrderStateForming)
 		if err != nil {
 			return fmt.Errorf("failed to process order restart callback: %w", err)
 		}
@@ -191,13 +191,13 @@ func (s Service) processCallback(ctx context.Context, bot *tg.BotAPI, update tg.
 			return fmt.Errorf("failed to get order inline kb: %w", err)
 		}
 	case kbDataOrderDelete:
-		err := s.processOrderStateCallback(ctx, bot, callbackQuery, types.OrderStateDeleted)
+		err := s.processOrderStateCallback(ctx, callbackQuery, types.OrderStateDeleted)
 		if err != nil {
 			return fmt.Errorf("failed to process order delete callback: %w", err)
 		}
 		markup = restoreDeletedOrderInlineKeyboard()
 	case kbDataOrderRestore:
-		err := s.processOrderStateCallback(ctx, bot, callbackQuery, types.OrderStateForming)
+		err := s.processOrderStateCallback(ctx, callbackQuery, types.OrderStateForming)
 		if err != nil {
 			return fmt.Errorf("failed to process order restore callback: %w", err)
 		}
@@ -206,7 +206,7 @@ func (s Service) processCallback(ctx context.Context, bot *tg.BotAPI, update tg.
 			return fmt.Errorf("failed to get order inline kb: %w", err)
 		}
 	case kbDataOrderInProgress:
-		err := s.processOrderStateCallback(ctx, bot, callbackQuery, types.OrderStateInProgress)
+		err := s.processOrderStateCallback(ctx, callbackQuery, types.OrderStateInProgress)
 		if err != nil {
 			return fmt.Errorf("failed to process order restore callback: %w", err)
 		}
@@ -215,13 +215,13 @@ func (s Service) processCallback(ctx context.Context, bot *tg.BotAPI, update tg.
 			return fmt.Errorf("failed to get order inline kb: %w", err)
 		}
 	case kbDataOrderCollapse:
-		err := s.processOrderDisplayModeCallback(ctx, bot, callbackQuery, types.DisplayModeCollapsed)
+		err := s.processOrderDisplayModeCallback(ctx, callbackQuery, types.DisplayModeCollapsed)
 		if err != nil {
 			return fmt.Errorf("failed to process order collapse callback: %w", err)
 		}
 		markup = expandOrderInlineKeyboard()
 	case kbDataOrderExpand:
-		err := s.processOrderDisplayModeCallback(ctx, bot, callbackQuery, types.DisplayModeFull)
+		err := s.processOrderDisplayModeCallback(ctx, callbackQuery, types.DisplayModeFull)
 		if err != nil {
 			return fmt.Errorf("failed to process order expand callback: %w", err)
 		}
@@ -278,7 +278,7 @@ func (s Service) processCallback(ctx context.Context, bot *tg.BotAPI, update tg.
 
 			switch args[1] {
 			case "remove":
-				err := s.processPaymentRemove(ctx, bot, callbackQuery, id)
+				err := s.processPaymentRemove(ctx, callbackQuery, id)
 				if err != nil {
 					return fmt.Errorf("failed to process remove payment callback: %w", err)
 				}

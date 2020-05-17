@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-func (s Service) processCommand(ctx context.Context, bot *tg.BotAPI, update tg.Update) error {
+func (s Service) processCommand(ctx context.Context, update tg.Update) error {
 	var err error
 	var cmd = update.Message.Text
 
