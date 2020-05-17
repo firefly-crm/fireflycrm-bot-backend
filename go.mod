@@ -1,10 +1,12 @@
-module github.com/firefly-crm/fireflycrm-bot-backend-backend
+module github.com/firefly-crm/fireflycrm-bot-backend
 
 go 1.14
 
 require (
 	github.com/DarthRamone/modulbank-go v0.0.5
 	github.com/badoux/checkmail v0.0.0-20181210160741-9661bd69e9ad
+	github.com/brianvoe/gofakeit v3.18.0+incompatible // indirect
+	github.com/firefly-crm/common v0.0.1
 	github.com/go-telegram-bot-api/telegram-bot-api v4.6.4+incompatible
 	github.com/gojuno/goose v1.0.0
 	github.com/gojuno/minimock/v3 v3.0.6
