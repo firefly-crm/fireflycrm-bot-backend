@@ -9,21 +9,21 @@ import (
 	tg "github.com/go-telegram-bot-api/telegram-bot-api"
 )
 
-func (s Service) processCallback(ctx context.Context, callback *tp.CallbackEvent) (err error) {
-	userId := callback.UserId
-	messageId := callback.MessageId
-	event := callback.Event
+func (s Service) processCallback(ctx context.Context, callbackEvent *tp.CallbackEvent) (err error) {
+	userId := callbackEvent.UserId
+	messageId := callbackEvent.MessageId
+	event := callbackEvent.Event
 
 	var markup tg.InlineKeyboardMarkup
 
 	log := logger.FromContext(ctx).
 		WithField("user_id", userId).
-		WithField("callback", tp.CallbackType_name[int32(event)]).
+		WithField("callbackEvent", tp.CallbackType_name[int32(event)]).
 		WithField("message_id", messageId)
 
 	ctx = logger.ToContext(ctx, log)
 
-	log.Infof("processing callback")
+	log.Infof("processing callbackEvent")
 
 	shouldDelete := false
 
@@ -47,13 +47,13 @@ func (s Service) processCallback(ctx context.Context, callback *tp.CallbackEvent
 		}
 		err = s.processCancelCallback(ctx, messageId)
 		if err != nil {
-			return fmt.Errorf("failed to process cancel callback: %w", err)
+			return fmt.Errorf("failed to process cancel callbackEvent: %w", err)
 		}
 	case tp.CallbackType_RECEIPT_ITEMS_ADD:
 		markup = cancelInlineKeyboard()
-		err := s.processAddItemCallack(ctx, callback)
+		err := s.processAddItemCallack(ctx, callbackEvent)
 		if err != nil {
-			return fmt.Errorf("failed to process add item callback: %w", err)
+			return fmt.Errorf("failed to process add item callbackEvent: %w", err)
 		}
 	case tp.CallbackType_RECEIPT_ITEMS_REMOVE:
 		markup, err = itemsListInlineKeyboard(ctx, s, messageId, "remove")
@@ -105,7 +105,7 @@ func (s Service) processCallback(ctx context.Context, callback *tp.CallbackEvent
 	case tp.CallbackType_PAYMENT_AMOUNT_FULL:
 		err := s.processPaymentCallback(ctx, messageId, 0)
 		if err != nil {
-			return fmt.Errorf("failed to process full payment callback: %w", err)
+			return fmt.Errorf("failed to process full payment callbackEvent: %w", err)
 		}
 		markup, err = startOrderInlineKeyboard(ctx, s, messageId)
 		if err != nil {
@@ -113,9 +113,9 @@ func (s Service) processCallback(ctx context.Context, callback *tp.CallbackEvent
 		}
 	case tp.CallbackType_PAYMENT_AMOUNT_PARTIAL:
 		markup = cancelInlineKeyboard()
-		err := s.processPartialPaymentCallback(ctx, callback)
+		err := s.processPartialPaymentCallback(ctx, callbackEvent)
 		if err != nil {
-			return fmt.Errorf("failed to process partial payment callback: %w", err)
+			return fmt.Errorf("failed to process partial payment callbackEvent: %w", err)
 		}
 	case tp.CallbackType_PAYMENTS_REFUND:
 		var err error
@@ -125,9 +125,9 @@ func (s Service) processCallback(ctx context.Context, callback *tp.CallbackEvent
 		}
 	case tp.CallbackType_PAYMENT_REFUND_PARTIAL:
 		markup = cancelInlineKeyboard()
-		err := s.processPartialRefundCallback(ctx, callback)
+		err := s.processPartialRefundCallback(ctx, callbackEvent)
 		if err != nil {
-			return fmt.Errorf("failed to process partial refund callback: %w", err)
+			return fmt.Errorf("failed to process partial refund callbackEvent: %w", err)
 		}
 	case tp.CallbackType_PAYMENT_REFUND_FULL:
 		order, err := s.OrderBook.GetOrderByMessageId(ctx, messageId)
@@ -136,7 +136,7 @@ func (s Service) processCallback(ctx context.Context, callback *tp.CallbackEvent
 		}
 		err = s.processRefundCallback(ctx, order, messageId, 0)
 		if err != nil {
-			return fmt.Errorf("failed to process refund callback: %w", err)
+			return fmt.Errorf("failed to process refund callbackEvent: %w", err)
 		}
 		markup, err = startOrderInlineKeyboard(ctx, s, messageId)
 		if err != nil {
@@ -155,7 +155,7 @@ func (s Service) processCallback(ctx context.Context, callback *tp.CallbackEvent
 	case tp.CallbackType_ORDER_STATE_DONE:
 		err := s.processOrderStateCallback(ctx, messageId, types.OrderStateDone)
 		if err != nil {
-			return fmt.Errorf("failed to process order done callback: %w", err)
+			return fmt.Errorf("failed to process order done callbackEvent: %w", err)
 		}
 		markup, err = startOrderInlineKeyboard(ctx, s, messageId)
 		if err != nil {
@@ -164,7 +164,7 @@ func (s Service) processCallback(ctx context.Context, callback *tp.CallbackEvent
 	case tp.CallbackType_ORDER_RESTART:
 		err := s.processOrderStateCallback(ctx, messageId, types.OrderStateForming)
 		if err != nil {
-			return fmt.Errorf("failed to process order restart callback: %w", err)
+			return fmt.Errorf("failed to process order restart callbackEvent: %w", err)
 		}
 		markup, err = startOrderInlineKeyboard(ctx, s, messageId)
 		if err != nil {
@@ -173,13 +173,13 @@ func (s Service) processCallback(ctx context.Context, callback *tp.CallbackEvent
 	case tp.CallbackType_ORDER_DELETE:
 		err := s.processOrderStateCallback(ctx, messageId, types.OrderStateDeleted)
 		if err != nil {
-			return fmt.Errorf("failed to process order delete callback: %w", err)
+			return fmt.Errorf("failed to process order delete callbackEvent: %w", err)
 		}
 		markup = restoreDeletedOrderInlineKeyboard()
 	case tp.CallbackType_ORDER_RESTORE:
 		err := s.processOrderStateCallback(ctx, messageId, types.OrderStateForming)
 		if err != nil {
-			return fmt.Errorf("failed to process order restore callback: %w", err)
+			return fmt.Errorf("failed to process order restore callbackEvent: %w", err)
 		}
 		markup, err = startOrderInlineKeyboard(ctx, s, messageId)
 		if err != nil {
@@ -188,7 +188,7 @@ func (s Service) processCallback(ctx context.Context, callback *tp.CallbackEvent
 	case tp.CallbackType_ORDER_STATE_IN_PROGRESS:
 		err := s.processOrderStateCallback(ctx, messageId, types.OrderStateInProgress)
 		if err != nil {
-			return fmt.Errorf("failed to process order restore callback: %w", err)
+			return fmt.Errorf("failed to process order restore callbackEvent: %w", err)
 		}
 		markup, err = startOrderInlineKeyboard(ctx, s, messageId)
 		if err != nil {
@@ -197,54 +197,54 @@ func (s Service) processCallback(ctx context.Context, callback *tp.CallbackEvent
 	case tp.CallbackType_ORDER_COLLAPSE:
 		err := s.processOrderDisplayModeCallback(ctx, messageId, types.DisplayModeCollapsed)
 		if err != nil {
-			return fmt.Errorf("failed to process order collapse callback: %w", err)
+			return fmt.Errorf("failed to process order collapse callbackEvent: %w", err)
 		}
 		markup = expandOrderInlineKeyboard()
 	case tp.CallbackType_ORDER_EXPAND:
 		err := s.processOrderDisplayModeCallback(ctx, messageId, types.DisplayModeFull)
 		if err != nil {
-			return fmt.Errorf("failed to process order expand callback: %w", err)
+			return fmt.Errorf("failed to process order expand callbackEvent: %w", err)
 		}
 		markup, err = startOrderInlineKeyboard(ctx, s, messageId)
 		if err != nil {
 			return fmt.Errorf("failed to get order inline kb: %w", err)
 		}
 	case tp.CallbackType_CUSTOM_ITEM_DELIVERY:
-		err := s.processAddKnownItem(ctx, callback, kbDataDelivery)
+		err := s.processAddKnownItem(ctx, callbackEvent, kbDataDelivery)
 		if err != nil {
-			return fmt.Errorf("failed to process add item callback: %w", err)
+			return fmt.Errorf("failed to process add item callbackEvent: %w", err)
 		}
 		markup = cancelInlineKeyboard()
 	case tp.CallbackType_CUSTOM_ITEM_LINGERIE_SET:
-		err := s.processAddKnownItem(ctx, callback, kbDataLingerieSet)
+		err := s.processAddKnownItem(ctx, callbackEvent, kbDataLingerieSet)
 		if err != nil {
-			return fmt.Errorf("failed to process add item callback: %w", err)
+			return fmt.Errorf("failed to process add item callbackEvent: %w", err)
 		}
 		markup = cancelInlineKeyboard()
 	case tp.CallbackType_NOTIFY_READ:
 		shouldDelete = true
 	case tp.CallbackType_CUSTOMER_EDIT_EMAIL:
 		markup = cancelInlineKeyboard()
-		err := s.processCustomerEditEmail(ctx, callback)
+		err := s.processCustomerEditEmail(ctx, callbackEvent)
 		if err != nil {
-			return fmt.Errorf("failed to process customer edit name callback: %w", err)
+			return fmt.Errorf("failed to process customer edit name callbackEvent: %w", err)
 		}
 	case tp.CallbackType_CUSTOMER_EDIT_INSTAGRAM:
 		markup = cancelInlineKeyboard()
-		err := s.processCustomerEditInstagram(ctx, callback)
+		err := s.processCustomerEditInstagram(ctx, callbackEvent)
 		if err != nil {
-			return fmt.Errorf("failed to process customer edit instagram callback: %w", err)
+			return fmt.Errorf("failed to process customer edit instagram callbackEvent: %w", err)
 		}
 	case tp.CallbackType_CUSTOMER_EDIT_PHONE:
 		markup = cancelInlineKeyboard()
-		err := s.processCustomerEditPhone(ctx, callback)
+		err := s.processCustomerEditPhone(ctx, callbackEvent)
 		if err != nil {
-			return fmt.Errorf("faield to process customer edit phone callback: %w", err)
+			return fmt.Errorf("faield to process customer edit phone callbackEvent: %w", err)
 		}
 	case tp.CallbackType_PAYMENT_REMOVE:
-		err := s.processPaymentRemove(ctx, callback)
+		err := s.processPaymentRemove(ctx, callbackEvent)
 		if err != nil {
-			return fmt.Errorf("failed to process remove payment callback: %w", err)
+			return fmt.Errorf("failed to process remove payment callbackEvent: %w", err)
 		}
 		markup, err = startOrderInlineKeyboard(ctx, s, messageId)
 		if err != nil {
@@ -255,38 +255,38 @@ func (s Service) processCallback(ctx context.Context, callback *tp.CallbackEvent
 		if err != nil {
 			return fmt.Errorf("failed to get order: %w", err)
 		}
-		err = s.OrderBook.SetActivePaymentId(ctx, order.Id, callback.EntityId)
+		err = s.OrderBook.SetActivePaymentId(ctx, order.Id, callbackEvent.EntityId)
 		if err != nil {
 			return fmt.Errorf("failed to set active refund payment: %w", err)
 		}
 		markup = refundAmountInlineKeyboard()
 	case tp.CallbackType_RECEIPT_ITEM_REMOVE:
-		err := s.processItemRemove(ctx, callback)
+		err := s.processItemRemove(ctx, callbackEvent)
 		if err != nil {
 			return fmt.Errorf("failed to remove item: %w", err)
 		}
 	case tp.CallbackType_RECEIPT_ITEM_EDIT:
-		markup = editItemActionsInlineKeyboard(callback.EntityId)
+		markup = editItemActionsInlineKeyboard(callbackEvent.EntityId)
 	case tp.CallbackType_RECEIPT_ITEM_EDIT_QTY:
 		markup = cancelInlineKeyboard()
-		err = s.processItemEditQty(ctx, callback)
+		err = s.processItemEditQty(ctx, callbackEvent)
 		if err != nil {
-			return fmt.Errorf("failed to process item edit qty callback: %w", err)
+			return fmt.Errorf("failed to process item edit qty callbackEvent: %w", err)
 		}
 	case tp.CallbackType_RECEIPT_ITEM_EDIT_PRICE:
 		markup = cancelInlineKeyboard()
-		err = s.processItemEditPrice(ctx, callback)
+		err = s.processItemEditPrice(ctx, callbackEvent)
 		if err != nil {
-			return fmt.Errorf("failed to process item edit price callback: %w", err)
+			return fmt.Errorf("failed to process item edit price callbackEvent: %w", err)
 		}
 	case tp.CallbackType_RECEIPT_ITEM_EDIT_NAME:
 		markup = cancelInlineKeyboard()
-		err = s.processItemEditName(ctx, callback)
+		err = s.processItemEditName(ctx, callbackEvent)
 		if err != nil {
-			return fmt.Errorf("failed to process item edit name callback: %w", err)
+			return fmt.Errorf("failed to process item edit name callbackEvent: %w", err)
 		}
 	default:
-		return fmt.Errorf("unknown callback event: %v", event)
+		return fmt.Errorf("unknown callbackEvent event: %v", event)
 	}
 
 	var msg tg.Chattable

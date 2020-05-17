@@ -7,10 +7,10 @@ import (
 	tg "github.com/go-telegram-bot-api/telegram-bot-api"
 )
 
-func (s Service) createOrder(ctx context.Context, update tg.Update) error {
-	log := logger.FromContext(ctx)
+func (s Service) createOrder(ctx context.Context, userId, messageId uint64) error {
+	uid := int64(userId)
 
-	userId := uint64(update.Message.From.ID)
+	log := logger.FromContext(ctx)
 
 	orderId, err := s.OrderBook.CreateOrder(ctx, userId)
 	if err != nil {
@@ -19,13 +19,13 @@ func (s Service) createOrder(ctx context.Context, update tg.Update) error {
 
 	messageText := fmt.Sprintf(`*Заказ №%d*`, orderId)
 
-	deleteMessage := tg.NewDeleteMessage(update.Message.Chat.ID, update.Message.MessageID)
+	deleteMessage := tg.NewDeleteMessage(uid, int(messageId))
 	_, err = s.Bot.DeleteMessage(deleteMessage)
 	if err != nil {
 		log.Warnf("failed to delete command message: %v", err)
 	}
 
-	msg := tg.NewMessage(update.Message.Chat.ID, messageText)
+	msg := tg.NewMessage(uid, messageText)
 	msg.ParseMode = "markdown"
 
 	var orderMessage tg.Message
@@ -44,7 +44,7 @@ func (s Service) createOrder(ctx context.Context, update tg.Update) error {
 		return fmt.Errorf("failed to get start order inline markup: %w", err)
 	}
 
-	editMessage := tg.NewEditMessageReplyMarkup(update.Message.Chat.ID, orderMessage.MessageID, messageReplyMarkup)
+	editMessage := tg.NewEditMessageReplyMarkup(uid, orderMessage.MessageID, messageReplyMarkup)
 	_, err = s.Bot.Send(editMessage)
 	if err != nil {
 		return fmt.Errorf("failed to set new markup: %w", err)

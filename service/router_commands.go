@@ -4,32 +4,30 @@ import (
 	"context"
 	"fmt"
 	"github.com/firefly-crm/common/logger"
-	tg "github.com/go-telegram-bot-api/telegram-bot-api"
-	"strings"
+	tp "github.com/firefly-crm/common/messages/telegram"
 )
 
-func (s Service) processCommand(ctx context.Context, update tg.Update) error {
+func (s Service) processCommand(ctx context.Context, commandEvent *tp.CommandEvent) error {
 	var err error
-	var cmd = update.Message.Text
 
 	log := logger.
 		FromContext(ctx).
-		WithField("user_id", update.Message.From.ID).
-		WithField("command", cmd)
+		WithField("user_id", commandEvent.UserId).
+		WithField("command", tp.CommandType_name[int32(commandEvent.Command)])
 
 	log.Infof("processing command")
 
 	ctx = logger.ToContext(ctx, log)
 
-	if cmd == "/start" {
-		err = s.createUser(ctx, update)
-	} else if cmd == kbCreateOrder {
-		err = s.createOrder(ctx, update)
-	} else if strings.HasPrefix(cmd, "/registerAsMerchant") {
-		err = s.registerMerchant(ctx, update)
-	} else if cmd == kbActiveOrders {
-	} else {
-		err = s.processPrompt(ctx, update)
+	switch commandEvent.Command {
+	case tp.CommandType_START:
+		err = s.createUser(ctx, commandEvent.UserId)
+	case tp.CommandType_CREATE_ORDER:
+		err = s.createOrder(ctx, commandEvent.UserId, commandEvent.MessageId)
+	case tp.CommandType_REGISTER_AS_MERCHANT:
+		err = s.registerMerchant(ctx, commandEvent)
+	default:
+		return fmt.Errorf("unknown command: %s", tp.CommandType_name[int32(commandEvent.Command)])
 	}
 
 	if err != nil {

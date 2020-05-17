@@ -3,34 +3,32 @@ package service
 import (
 	"context"
 	"fmt"
+	tp "github.com/firefly-crm/common/messages/telegram"
 	tg "github.com/go-telegram-bot-api/telegram-bot-api"
-	"strings"
 )
 
-func (s Service) registerMerchant(ctx context.Context, update tg.Update) error {
-	cmd := update.Message.Text
-	userId := uint64(update.Message.From.ID)
+func (s Service) registerMerchant(ctx context.Context, commandEvent *tp.CommandEvent) error {
+	userId := commandEvent.UserId
 
-	args := strings.Split(cmd, " ")
-	if len(args) != 3 {
+	if len(commandEvent.Arguments) != 2 {
 		return fmt.Errorf("wrong arguments count")
 	}
 
-	merchantId := args[1]
-	secretKey := args[2]
+	merchantId := commandEvent.Arguments[0]
+	secretKey := commandEvent.Arguments[1]
 
 	err := s.Users.RegisterAsMerchant(ctx, userId, merchantId, secretKey)
 	if err != nil {
 		return fmt.Errorf("failed to register as merchant: %w", err)
 	}
 
-	deleteMessage := tg.NewDeleteMessage(update.Message.Chat.ID, update.Message.MessageID)
+	deleteMessage := tg.NewDeleteMessage(int64(userId), int(commandEvent.MessageId))
 	_, err = s.Bot.DeleteMessage(deleteMessage)
 	if err != nil {
 		return fmt.Errorf("failed to delete command message: %w", err)
 	}
 
-	msg := tg.NewMessage(update.Message.Chat.ID, replyMerchantSuccessfulRegistered)
+	msg := tg.NewMessage(int64(userId), replyMerchantSuccessfulRegistered)
 	msg.ReplyMarkup = merchantStandByKeyboardMarkup()
 	msg.ParseMode = "markdown"
 
