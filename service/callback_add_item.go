@@ -3,20 +3,21 @@ package service
 import (
 	"context"
 	"fmt"
+	tp "github.com/firefly-crm/common/messages/telegram"
 	"github.com/firefly-crm/fireflycrm-bot-backend/types"
 	tg "github.com/go-telegram-bot-api/telegram-bot-api"
 )
 
-func (s Service) processAddKnownItem(ctx context.Context, callbackQuery *tg.CallbackQuery, data string) error {
-	chatId := callbackQuery.Message.Chat.ID
-	messageId := uint64(callbackQuery.Message.MessageID)
+func (s Service) processAddKnownItem(ctx context.Context, callback *tp.CallbackEvent, data string) error {
+	userId := int64(callback.UserId)
+	messageId := callback.MessageId
 
 	order, err := s.OrderBook.GetOrderByMessageId(ctx, messageId)
 	if err != nil {
 		return fmt.Errorf("failed to get order by message id: %w", err)
 	}
 
-	hintMessage := tg.NewMessage(chatId, replyEnterItemPrice)
+	hintMessage := tg.NewMessage(userId, replyEnterItemPrice)
 	hint, err := s.Bot.Send(hintMessage)
 	if err != nil {
 		return fmt.Errorf("failed to send message: %w", err)
@@ -36,7 +37,7 @@ func (s Service) processAddKnownItem(ctx context.Context, callbackQuery *tg.Call
 		name = "Комплект нижнего белья"
 	}
 
-	err = s.OrderBook.UpdateReceiptItemName(ctx, name, uint64(chatId), itemId)
+	err = s.OrderBook.UpdateReceiptItemName(ctx, name, uint64(userId), itemId)
 	if err != nil {
 		return fmt.Errorf("failed to set delivery name: %w", err)
 	}
@@ -54,15 +55,15 @@ func (s Service) processAddKnownItem(ctx context.Context, callbackQuery *tg.Call
 	return nil
 }
 
-func (s Service) processAddItemCallack(ctx context.Context, callbackQuery *tg.CallbackQuery) error {
-	chatId := callbackQuery.Message.Chat.ID
-	messageId := uint64(callbackQuery.Message.MessageID)
+func (s Service) processAddItemCallack(ctx context.Context, callback *tp.CallbackEvent) error {
+	userId := int64(callback.UserId)
+	messageId := callback.MessageId
 
 	order, err := s.OrderBook.GetOrderByMessageId(ctx, messageId)
 	if err != nil {
 		return fmt.Errorf("failed to get order by message id: %w", err)
 	}
-	hintMessage := tg.NewMessage(chatId, replyEnterItemName)
+	hintMessage := tg.NewMessage(userId, replyEnterItemName)
 	hint, err := s.Bot.Send(hintMessage)
 	if err != nil {
 		return fmt.Errorf("failed to send message: %w", err)

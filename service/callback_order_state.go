@@ -7,9 +7,7 @@ import (
 	tg "github.com/go-telegram-bot-api/telegram-bot-api"
 )
 
-func (s Service) processOrderStateCallback(ctx context.Context, callbackQuery *tg.CallbackQuery, state types.OrderState) error {
-	messageId := uint64(callbackQuery.Message.MessageID)
-
+func (s Service) processOrderStateCallback(ctx context.Context, messageId uint64, state types.OrderState) error {
 	order, err := s.OrderBook.GetOrderByMessageId(ctx, messageId)
 	if err != nil {
 		return fmt.Errorf("failed to get order by message id: %w", err)

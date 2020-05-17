@@ -4,12 +4,9 @@ import (
 	"context"
 	"fmt"
 	"github.com/firefly-crm/fireflycrm-bot-backend/types"
-	tg "github.com/go-telegram-bot-api/telegram-bot-api"
 )
 
-func (s Service) processOrderDisplayModeCallback(ctx context.Context, callbackQuery *tg.CallbackQuery, mode types.DisplayMode) error {
-	messageId := uint64(callbackQuery.Message.MessageID)
-
+func (s Service) processOrderDisplayModeCallback(ctx context.Context, messageId uint64, mode types.DisplayMode) error {
 	err := s.OrderBook.UpdateOrderMessageDisplayMode(ctx, messageId, mode)
 	if err != nil {
 		return fmt.Errorf("failed to update display mode: %w", err)

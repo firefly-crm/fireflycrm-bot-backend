@@ -2,6 +2,8 @@ module github.com/firefly-crm/fireflycrm-bot-backend
 
 go 1.14
 
+replace github.com/firefly-crm/common => ../common
+
 require (
 	github.com/DarthRamone/modulbank-go v0.0.5
 	github.com/badoux/checkmail v0.0.0-20181210160741-9661bd69e9ad

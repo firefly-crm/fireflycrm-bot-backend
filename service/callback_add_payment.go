@@ -4,14 +4,13 @@ import (
 	"context"
 	"fmt"
 	"github.com/firefly-crm/common/logger"
+	tp "github.com/firefly-crm/common/messages/telegram"
 	"github.com/firefly-crm/fireflycrm-bot-backend/types"
 	tg "github.com/go-telegram-bot-api/telegram-bot-api"
 )
 
-func (s Service) processAddPaymentCallback(ctx context.Context, cbq *tg.CallbackQuery, method types.PaymentMethod) error {
-	messageId := cbq.Message.MessageID
-
-	order, err := s.OrderBook.GetOrderByMessageId(ctx, uint64(messageId))
+func (s Service) processAddPaymentCallback(ctx context.Context, messageId uint64, method types.PaymentMethod) error {
+	order, err := s.OrderBook.GetOrderByMessageId(ctx, messageId)
 	if err != nil {
 		return fmt.Errorf("failed to get order by message id: %w", err)
 	}
@@ -24,15 +23,15 @@ func (s Service) processAddPaymentCallback(ctx context.Context, cbq *tg.Callback
 	return nil
 }
 
-func (s Service) processPartialPaymentCallback(ctx context.Context, cbq *tg.CallbackQuery) error {
-	chatId := cbq.Message.Chat.ID
-	messageId := cbq.Message.MessageID
+func (s Service) processPartialPaymentCallback(ctx context.Context, callback *tp.CallbackEvent) error {
+	userId := int64(callback.UserId)
+	messageId := callback.MessageId
 
-	order, err := s.OrderBook.GetOrderByMessageId(ctx, uint64(messageId))
+	order, err := s.OrderBook.GetOrderByMessageId(ctx, messageId)
 	if err != nil {
 		return fmt.Errorf("failed to get order by message id: %w", err)
 	}
-	hintMessage := tg.NewMessage(chatId, replyEnterAmount)
+	hintMessage := tg.NewMessage(userId, replyEnterAmount)
 	hint, err := s.Bot.Send(hintMessage)
 	if err != nil {
 		return fmt.Errorf("failed to send message: %w", err)

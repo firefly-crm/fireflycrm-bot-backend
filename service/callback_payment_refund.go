@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/firefly-crm/common/logger"
+	tp "github.com/firefly-crm/common/messages/telegram"
 	"github.com/firefly-crm/fireflycrm-bot-backend/types"
 	tg "github.com/go-telegram-bot-api/telegram-bot-api"
 )
@@ -61,9 +62,9 @@ func (s Service) processRefundCallback(ctx context.Context, order types.Order, m
 	return nil
 }
 
-func (s Service) processPartialRefundCallback(ctx context.Context, cbq *tg.CallbackQuery) error {
-	chatId := cbq.Message.Chat.ID
-	messageId := cbq.Message.MessageID
+func (s Service) processPartialRefundCallback(ctx context.Context, callback *tp.CallbackEvent) error {
+	chatId := int64(callback.UserId)
+	messageId := callback.MessageId
 
 	order, err := s.OrderBook.GetOrderByMessageId(ctx, uint64(messageId))
 	if err != nil {

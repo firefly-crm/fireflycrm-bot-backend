@@ -6,11 +6,9 @@ import (
 	"errors"
 	"fmt"
 	"github.com/firefly-crm/fireflycrm-bot-backend/types"
-	tg "github.com/go-telegram-bot-api/telegram-bot-api"
 )
 
-func (s Service) processCancelCallback(ctx context.Context, callbackQuery *tg.CallbackQuery) error {
-	messageId := uint64(callbackQuery.Message.MessageID)
+func (s Service) processCancelCallback(ctx context.Context, messageId uint64) error {
 
 	order, err := s.OrderBook.GetOrderByMessageId(ctx, messageId)
 	if err != nil {

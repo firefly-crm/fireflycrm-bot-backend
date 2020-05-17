@@ -3,25 +3,23 @@ package service
 import (
 	"context"
 	"fmt"
+	tp "github.com/firefly-crm/common/messages/telegram"
 	"github.com/firefly-crm/fireflycrm-bot-backend/types"
 	tg "github.com/go-telegram-bot-api/telegram-bot-api"
 )
 
-func (s Service) processItemEditQty(ctx context.Context, callbackQuery *tg.CallbackQuery, itemId uint64) error {
-	chatId := callbackQuery.Message.Chat.ID
-	messageId := callbackQuery.Message.MessageID
-
-	order, err := s.OrderBook.GetOrderByMessageId(ctx, uint64(messageId))
+func (s Service) processItemEditQty(ctx context.Context, callback *tp.CallbackEvent) error {
+	order, err := s.OrderBook.GetOrderByMessageId(ctx, callback.MessageId)
 	if err != nil {
 		return fmt.Errorf("failed to get order by message id: %w", err)
 	}
-	hintMessage := tg.NewMessage(chatId, replyEnterItemQty)
+	hintMessage := tg.NewMessage(int64(callback.UserId), replyEnterItemQty)
 	hint, err := s.Bot.Send(hintMessage)
 	if err != nil {
 		return fmt.Errorf("failed to send message: %w", err)
 	}
 
-	err = s.OrderBook.SetActiveItemId(ctx, order.Id, itemId)
+	err = s.OrderBook.SetActiveItemId(ctx, order.Id, callback.EntityId)
 	if err != nil {
 		return fmt.Errorf("failed to set active item id: %w", err)
 	}
@@ -39,21 +37,18 @@ func (s Service) processItemEditQty(ctx context.Context, callbackQuery *tg.Callb
 	return nil
 }
 
-func (s Service) processItemEditPrice(ctx context.Context, callbackQuery *tg.CallbackQuery, itemId uint64) error {
-	chatId := callbackQuery.Message.Chat.ID
-	messageId := callbackQuery.Message.MessageID
-
-	order, err := s.OrderBook.GetOrderByMessageId(ctx, uint64(messageId))
+func (s Service) processItemEditPrice(ctx context.Context, callback *tp.CallbackEvent) error {
+	order, err := s.OrderBook.GetOrderByMessageId(ctx, callback.MessageId)
 	if err != nil {
 		return fmt.Errorf("failed to get order by message id: %w", err)
 	}
-	hintMessage := tg.NewMessage(chatId, replyEnterItemPrice)
+	hintMessage := tg.NewMessage(int64(callback.UserId), replyEnterItemPrice)
 	hint, err := s.Bot.Send(hintMessage)
 	if err != nil {
 		return fmt.Errorf("failed to send message: %w", err)
 	}
 
-	err = s.OrderBook.SetActiveItemId(ctx, order.Id, itemId)
+	err = s.OrderBook.SetActiveItemId(ctx, order.Id, callback.EntityId)
 	if err != nil {
 		return fmt.Errorf("failed to set active item id: %w", err)
 	}
@@ -71,21 +66,18 @@ func (s Service) processItemEditPrice(ctx context.Context, callbackQuery *tg.Cal
 	return nil
 }
 
-func (s Service) processItemEditName(ctx context.Context, callbackQuery *tg.CallbackQuery, itemId uint64) error {
-	chatId := callbackQuery.Message.Chat.ID
-	messageId := callbackQuery.Message.MessageID
-
-	order, err := s.OrderBook.GetOrderByMessageId(ctx, uint64(messageId))
+func (s Service) processItemEditName(ctx context.Context, callback *tp.CallbackEvent) error {
+	order, err := s.OrderBook.GetOrderByMessageId(ctx, callback.MessageId)
 	if err != nil {
 		return fmt.Errorf("failed to get order by message id: %w", err)
 	}
-	hintMessage := tg.NewMessage(chatId, replyEnterItemName)
+	hintMessage := tg.NewMessage(int64(callback.UserId), replyEnterItemName)
 	hint, err := s.Bot.Send(hintMessage)
 	if err != nil {
 		return fmt.Errorf("failed to send message: %w", err)
 	}
 
-	err = s.OrderBook.SetActiveItemId(ctx, order.Id, itemId)
+	err = s.OrderBook.SetActiveItemId(ctx, order.Id, callback.EntityId)
 	if err != nil {
 		return fmt.Errorf("failed to set active item id: %w", err)
 	}

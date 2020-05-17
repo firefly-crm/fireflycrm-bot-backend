@@ -3,19 +3,20 @@ package service
 import (
 	"context"
 	"fmt"
+	tp "github.com/firefly-crm/common/messages/telegram"
 	"github.com/firefly-crm/fireflycrm-bot-backend/types"
 	tg "github.com/go-telegram-bot-api/telegram-bot-api"
 )
 
-func (s Service) processCustomerEditInstagram(ctx context.Context, callbackQuery *tg.CallbackQuery) error {
-	chatId := callbackQuery.Message.Chat.ID
-	messageId := callbackQuery.Message.MessageID
+func (s Service) processCustomerEditInstagram(ctx context.Context, callback *tp.CallbackEvent) error {
+	userId := int64(callback.UserId)
+	messageId := callback.MessageId
 
 	order, err := s.OrderBook.GetOrderByMessageId(ctx, uint64(messageId))
 	if err != nil {
 		return fmt.Errorf("failed to get order by message id: %w", err)
 	}
-	hintMessage := tg.NewMessage(chatId, replyEnterCustomerInstagram)
+	hintMessage := tg.NewMessage(userId, replyEnterCustomerInstagram)
 	hint, err := s.Bot.Send(hintMessage)
 	if err != nil {
 		return fmt.Errorf("failed to send message: %w", err)
@@ -34,15 +35,15 @@ func (s Service) processCustomerEditInstagram(ctx context.Context, callbackQuery
 	return nil
 }
 
-func (s Service) processCustomerEditEmail(ctx context.Context, callbackQuery *tg.CallbackQuery) error {
-	chatId := callbackQuery.Message.Chat.ID
-	messageId := callbackQuery.Message.MessageID
+func (s Service) processCustomerEditEmail(ctx context.Context, callback *tp.CallbackEvent) error {
+	userId := int64(callback.UserId)
+	messageId := callback.MessageId
 
-	order, err := s.OrderBook.GetOrderByMessageId(ctx, uint64(messageId))
+	order, err := s.OrderBook.GetOrderByMessageId(ctx, messageId)
 	if err != nil {
 		return fmt.Errorf("failed to get order by message id: %w", err)
 	}
-	hintMessage := tg.NewMessage(chatId, replyEnterCustomerEmail)
+	hintMessage := tg.NewMessage(userId, replyEnterCustomerEmail)
 	hint, err := s.Bot.Send(hintMessage)
 	if err != nil {
 		return fmt.Errorf("failed to send message: %w", err)
@@ -61,15 +62,15 @@ func (s Service) processCustomerEditEmail(ctx context.Context, callbackQuery *tg
 	return nil
 }
 
-func (s Service) processCustomerEditPhone(ctx context.Context, callbackQuery *tg.CallbackQuery) error {
-	chatId := callbackQuery.Message.Chat.ID
-	messageId := callbackQuery.Message.MessageID
+func (s Service) processCustomerEditPhone(ctx context.Context, callback *tp.CallbackEvent) error {
+	userId := int64(callback.UserId)
+	messageId := callback.MessageId
 
 	order, err := s.OrderBook.GetOrderByMessageId(ctx, uint64(messageId))
 	if err != nil {
 		return fmt.Errorf("failed to get order by message id: %w", err)
 	}
-	hintMessage := tg.NewMessage(chatId, replyEnterCustomerPhone)
+	hintMessage := tg.NewMessage(userId, replyEnterCustomerPhone)
 	hint, err := s.Bot.Send(hintMessage)
 	if err != nil {
 		return fmt.Errorf("failed to send message: %w", err)
