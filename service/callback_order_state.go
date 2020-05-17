@@ -15,7 +15,7 @@ func (s Service) processOrderStateCallback(ctx context.Context, messageId uint64
 
 	err = s.OrderBook.UpdateOrderState(ctx, order.Id, state)
 	if err != nil {
-		return fmt.Errorf("failed to update order state(%s): %w", state, err)
+		return fmt.Errorf("failed to update order state(%v): %w", state, err)
 	}
 
 	if state == types.OrderStateDeleted {
@@ -57,7 +57,7 @@ func (s Service) processOrderEditStateCallback(ctx context.Context, bot *tg.BotA
 
 	err = s.OrderBook.UpdateOrderEditState(ctx, order.Id, state)
 	if err != nil {
-		return fmt.Errorf("failed to update order state(%s): %w", state, err)
+		return fmt.Errorf("failed to update order state(%v): %w", state, err)
 	}
 
 	err = s.updateOrderMessage(ctx, messageId, true)

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/badoux/checkmail"
 	"github.com/firefly-crm/common/logger"
+	tp "github.com/firefly-crm/common/messages/telegram"
 	"github.com/firefly-crm/fireflycrm-bot-backend/types"
 	tg "github.com/go-telegram-bot-api/telegram-bot-api"
 	"regexp"
@@ -12,10 +13,10 @@ import (
 	"strings"
 )
 
-func (s Service) processPrompt(ctx context.Context, update tg.Update) error {
+func (s Service) processPrompt(ctx context.Context, promptEvent *tp.PromptEvent) error {
 	log := logger.FromContext(ctx)
 
-	userId := uint64(update.Message.From.ID)
+	userId := promptEvent.UserId
 	activeMessageId, err := s.OrderBook.GetActiveOrderMessageIdForUser(ctx, userId)
 	if err != nil {
 		return fmt.Errorf("failed to get active message id: %w", err)
@@ -50,14 +51,14 @@ func (s Service) processPrompt(ctx context.Context, update tg.Update) error {
 			log.Errorf("failed to update order message: %v", err)
 		}
 
-		delMessage := tg.NewDeleteMessage(update.Message.Chat.ID, update.Message.MessageID)
+		delMessage := tg.NewDeleteMessage(int64(userId), int(promptEvent.MessageId))
 		_, err := s.Bot.Send(delMessage)
 		if err != nil {
 			log.Errorf("failed to delete message: %v", err)
 		}
 	}()
 
-	text := strings.TrimSpace(update.Message.Text)
+	text := promptEvent.UserMessage
 
 	log.Infof("edit state: %v", activeOrder.EditState)
 
@@ -88,8 +89,6 @@ func (s Service) processPrompt(ctx context.Context, update tg.Update) error {
 			deleteHint = false
 			standBy = false
 		}
-
-		break
 	case types.EditStateWaitingItemPrice:
 		if !activeOrder.ActiveItemId.Valid {
 			return fmt.Errorf("active order item id doesnt exists")
@@ -107,8 +106,6 @@ func (s Service) processPrompt(ctx context.Context, update tg.Update) error {
 		if err != nil {
 			return fmt.Errorf("failed to change item price: %w", err)
 		}
-
-		break
 	case types.EditStateWaitingItemQuantity:
 		if !activeOrder.ActiveItemId.Valid {
 			return fmt.Errorf("active order item id doesnt exists")
@@ -124,8 +121,6 @@ func (s Service) processPrompt(ctx context.Context, update tg.Update) error {
 		if err != nil {
 			return fmt.Errorf("failed to change item quantity: %w", err)
 		}
-
-		break
 	case types.EditStateWaitingCustomerEmail:
 		err = checkmail.ValidateFormat(text)
 		if err != nil {
@@ -136,8 +131,6 @@ func (s Service) processPrompt(ctx context.Context, update tg.Update) error {
 		if err != nil {
 			return fmt.Errorf("failed to update customer email: %w", err)
 		}
-
-		break
 	case types.EditStateWaitingPaymentAmount:
 		if !activeOrder.ActivePaymentId.Valid {
 			return fmt.Errorf("active payment id doesnt exists")
@@ -152,8 +145,6 @@ func (s Service) processPrompt(ctx context.Context, update tg.Update) error {
 		if err != nil {
 			return fmt.Errorf("failed to proces payment callback")
 		}
-
-		break
 	case types.EditStateWaitingRefundAmount:
 		if !activeOrder.ActivePaymentId.Valid {
 			return fmt.Errorf("active payment id doesnt exists")
@@ -168,8 +159,6 @@ func (s Service) processPrompt(ctx context.Context, update tg.Update) error {
 		if err != nil {
 			return fmt.Errorf("failed to proces refund callback")
 		}
-
-		break
 	case types.EditStateWaitingCustomerInstagram:
 		text = strings.Trim(text, "@")
 
@@ -177,8 +166,6 @@ func (s Service) processPrompt(ctx context.Context, update tg.Update) error {
 		if err != nil {
 			return fmt.Errorf("failed to update customer email: %w", err)
 		}
-
-		break
 	case types.EditStateWaitingCustomerPhone:
 		text = strings.Trim(text, "+")
 
@@ -191,8 +178,6 @@ func (s Service) processPrompt(ctx context.Context, update tg.Update) error {
 		if err != nil {
 			return fmt.Errorf("failed to update customer phone: %w", err)
 		}
-
-		break
 	}
 
 	return nil

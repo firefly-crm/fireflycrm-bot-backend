@@ -17,7 +17,7 @@ func (s Service) createUser(ctx context.Context, userId uint64) error {
 
 	_, err = s.Bot.Send(msg)
 	if err != nil {
-		return fmt.Errorf("failed to send welcome message: %w")
+		return fmt.Errorf("failed to send welcome message: %w", err)
 	}
 
 	return nil

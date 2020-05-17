@@ -1,6 +1,6 @@
 package service
 
-var (
+const (
 	kbCreateOrder          = "Создать заказ"
 	kbActiveOrders         = "Активные заказы"
 	kbItems                = "Позиции"
@@ -39,7 +39,7 @@ var (
 	kbDeliveryPictogram    = "🚚"
 )
 
-var (
+const (
 	kbDataItems           = "items"
 	kbDataCustomer        = "customer"
 	kbDataAddItem         = "order_add_item"
@@ -67,11 +67,10 @@ var (
 	kbDataOrderInProgress = "order_state_in_progress"
 	kbDataDelivery        = "delivery"
 	kbDataLingerieSet     = "lingerie"
-	kbDataInstagram       = "instagram"
 	kbDataNotifyRead      = "notify_readed"
 )
 
-var (
+const (
 	replyMerchantSuccessfulRegistered = "Регистрация прошла успешно"
 	replyWelcome                      = "Добро пожаловать!"
 	replyEnterItemName                = "Введите наименование"
