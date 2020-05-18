@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 	mb "github.com/DarthRamone/modulbank-go"
+	tg "github.com/DarthRamone/telegram-bot-api"
 	"github.com/firefly-crm/common/logger"
-	tg "github.com/go-telegram-bot-api/telegram-bot-api"
 	"net/http"
 	"time"
 )

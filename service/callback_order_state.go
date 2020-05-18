@@ -3,8 +3,8 @@ package service
 import (
 	"context"
 	"fmt"
+	tg "github.com/DarthRamone/telegram-bot-api"
 	"github.com/firefly-crm/fireflycrm-bot-backend/types"
-	tg "github.com/go-telegram-bot-api/telegram-bot-api"
 )
 
 func (s Service) processOrderStateCallback(ctx context.Context, messageId uint64, state types.OrderState) error {
@@ -47,7 +47,7 @@ func (s Service) processOrderStateCallback(ctx context.Context, messageId uint64
 	return nil
 }
 
-func (s Service) processOrderEditStateCallback(ctx context.Context, bot *tg.BotAPI, callbackQuery *tg.CallbackQuery, state types.EditState) error {
+func (s Service) processOrderEditStateCallback(ctx context.Context, callbackQuery *tg.CallbackQuery, state types.EditState) error {
 	messageId := uint64(callbackQuery.Message.MessageID)
 
 	order, err := s.OrderBook.GetOrderByMessageId(ctx, messageId)

@@ -3,8 +3,8 @@ package service
 import (
 	"context"
 	"fmt"
+	tg "github.com/DarthRamone/telegram-bot-api"
 	"github.com/firefly-crm/fireflycrm-bot-backend/types"
-	tg "github.com/go-telegram-bot-api/telegram-bot-api"
 )
 
 func (s Service) setWaitingForPrice(ctx context.Context, order types.Order) error {
