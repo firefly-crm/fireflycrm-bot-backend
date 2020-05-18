@@ -138,6 +138,22 @@ func (s storage) GetPayment(ctx context.Context, paymentId uint64) (payment type
 }
 
 func (s storage) UpdateCustomerInstagram(ctx context.Context, instagram string, orderId uint64) (customerId uint64, err error) {
+	tx, err := s.db.BeginTxx(ctx, nil)
+	if err != nil {
+		return customerId, fmt.Errorf("failed to start transaction: %w", err)
+	}
+	defer func() {
+		if err != nil {
+			_ = tx.Rollback()
+		} else {
+			_ = tx.Commit()
+		}
+	}()
+
+	const getExistingCustomerQuery = `SELECT customer_id FROM orders WHERE id=$1`
+
+	const updateCustomerDataQuery = `UPDATE customers SET instagram=$2 WHERE id=$1`
+
 	const createOrGetCustomerQuery = `
 INSERT INTO customers(instagram) VALUES($1)
 ON CONFLICT(instagram) DO UPDATE SET instagram=$1
@@ -147,6 +163,29 @@ RETURNING id
 UPDATE orders SET customer_id=$2 WHERE id=$1
 `
 
+	var id sql.NullInt64
+	err = tx.Get(&id, getExistingCustomerQuery, orderId)
+	if id.Valid {
+		_, err = tx.Exec(updateCustomerDataQuery, id, instagram)
+		if err != nil {
+			return customerId, fmt.Errorf("failed to update customer instagram: %w", err)
+		}
+	} else {
+		err = tx.Get(&customerId, createOrGetCustomerQuery, instagram)
+		if err != nil {
+			return customerId, fmt.Errorf("failed to update customer instagram: %w", err)
+		}
+
+		_, err = tx.Exec(updateCustomerIdQuery, orderId, customerId)
+		if err != nil {
+			return customerId, fmt.Errorf("failed to update customer instagram: %w", err)
+		}
+	}
+
+	return customerId, nil
+}
+
+func (s storage) UpdateCustomerPhone(ctx context.Context, phone string, orderId uint64) (customerId uint64, err error) {
 	tx, err := s.db.BeginTxx(ctx, nil)
 	if err != nil {
 		return customerId, fmt.Errorf("failed to start transaction: %w", err)
@@ -159,20 +198,6 @@ UPDATE orders SET customer_id=$2 WHERE id=$1
 		}
 	}()
 
-	err = tx.Get(&customerId, createOrGetCustomerQuery, instagram)
-	if err != nil {
-		return customerId, fmt.Errorf("failed to update customer instagram: %w", err)
-	}
-
-	_, err = tx.Exec(updateCustomerIdQuery, orderId, customerId)
-	if err != nil {
-		return customerId, fmt.Errorf("failed to update customer instagram: %w", err)
-	}
-
-	return customerId, nil
-}
-
-func (s storage) UpdateCustomerPhone(ctx context.Context, phone string, orderId uint64) (customerId uint64, err error) {
 	const createOrGetCustomerQuery = `
 INSERT INTO customers(phone) VALUES($1)
 ON CONFLICT(phone) DO UPDATE SET phone=$1
@@ -181,27 +206,27 @@ RETURNING id
 	const updateCustomerIdQuery = `
 UPDATE orders SET customer_id=$2 WHERE id=$1
 `
+	const getExistingCustomerQuery = `SELECT customer_id FROM orders WHERE id=$1`
 
-	tx, err := s.db.BeginTxx(ctx, nil)
-	if err != nil {
-		return customerId, fmt.Errorf("failed to start transaction: %w", err)
-	}
-	defer func() {
+	const updateCustomerDataQuery = `UPDATE customers SET phone=$2 WHERE id=$1`
+
+	var id sql.NullInt64
+	err = tx.Get(&id, getExistingCustomerQuery, orderId)
+	if id.Valid {
+		_, err = tx.Exec(updateCustomerDataQuery, id, phone)
 		if err != nil {
-			_ = tx.Rollback()
-		} else {
-			_ = tx.Commit()
+			return customerId, fmt.Errorf("failed to update customer instagram: %w", err)
 		}
-	}()
+	} else {
+		err = tx.Get(&customerId, createOrGetCustomerQuery, phone)
+		if err != nil {
+			return customerId, fmt.Errorf("failed to update customer phone: %w", err)
+		}
 
-	err = tx.Get(&customerId, createOrGetCustomerQuery, phone)
-	if err != nil {
-		return customerId, fmt.Errorf("failed to update customer phone: %w", err)
-	}
-
-	_, err = tx.Exec(updateCustomerIdQuery, orderId, customerId)
-	if err != nil {
-		return customerId, fmt.Errorf("failed to update customer phone: %w", err)
+		_, err = tx.Exec(updateCustomerIdQuery, orderId, customerId)
+		if err != nil {
+			return customerId, fmt.Errorf("failed to update customer phone: %w", err)
+		}
 	}
 
 	return customerId, nil
@@ -381,15 +406,6 @@ func (s storage) GetCustomer(ctx context.Context, customerId uint64) (c types.Cu
 }
 
 func (s storage) UpdateCustomerEmail(ctx context.Context, email string, orderId uint64) (customerId uint64, err error) {
-	const createOrGetCustomerQuery = `
-INSERT INTO customers(email) VALUES($1)
-ON CONFLICT(email) DO UPDATE SET email=$1
-RETURNING id
-`
-	const updateCustomerIdQuery = `
-UPDATE orders SET customer_id=$2 WHERE id=$1
-`
-
 	tx, err := s.db.BeginTxx(ctx, nil)
 	if err != nil {
 		return customerId, fmt.Errorf("failed to start transaction: %w", err)
@@ -402,14 +418,35 @@ UPDATE orders SET customer_id=$2 WHERE id=$1
 		}
 	}()
 
-	err = tx.Get(&customerId, createOrGetCustomerQuery, email)
-	if err != nil {
-		return customerId, fmt.Errorf("failed to update customer email: %w", err)
-	}
+	const createOrGetCustomerQuery = `
+INSERT INTO customers(email) VALUES($1)
+ON CONFLICT(email) DO UPDATE SET email=$1
+RETURNING id`
 
-	_, err = tx.Exec(updateCustomerIdQuery, orderId, customerId)
-	if err != nil {
-		return customerId, fmt.Errorf("failed to update customer email: %w", err)
+	const updateCustomerIdQuery = `
+UPDATE orders SET customer_id=$2 WHERE id=$1`
+
+	const getExistingCustomerQuery = `SELECT customer_id FROM orders WHERE id=$1`
+
+	const updateCustomerDataQuery = `UPDATE customers SET email=$2 WHERE id=$1`
+
+	var id sql.NullInt64
+	err = tx.Get(&id, getExistingCustomerQuery, orderId)
+	if id.Valid {
+		_, err = tx.Exec(updateCustomerDataQuery, id, email)
+		if err != nil {
+			return customerId, fmt.Errorf("failed to update customer instagram: %w", err)
+		}
+	} else {
+		err = tx.Get(&customerId, createOrGetCustomerQuery, email)
+		if err != nil {
+			return customerId, fmt.Errorf("failed to update customer email: %w", err)
+		}
+
+		_, err = tx.Exec(updateCustomerIdQuery, orderId, customerId)
+		if err != nil {
+			return customerId, fmt.Errorf("failed to update customer email: %w", err)
+		}
 	}
 
 	return customerId, nil

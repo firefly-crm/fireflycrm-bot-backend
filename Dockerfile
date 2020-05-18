@@ -1,4 +1,4 @@
-FROM golang:1.14.2-alpine3.11 as builder
+FROM golang:1.14.2 as builder
 
 ENV GO111MODULE=on \
     CGO_ENABLED=0 \
@@ -6,10 +6,11 @@ ENV GO111MODULE=on \
 
 WORKDIR ./src/github.com/firefly-crm/fireflycrm-bot-backend
 ADD . .
+RUN go mod download
 RUN go build -o main cmd/app/app.go
 
 FROM alpine
 WORKDIR /app
 
-COPY --from=builder /go/src/github.com/firefly-crm/fireflycrm-bot/main .
-CMD ["sh", "-c", "./main"]
+COPY --from=builder /go/src/github.com/firefly-crm/fireflycrm-bot-backend/main .
+CMD ["./main"]

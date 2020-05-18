@@ -1,6 +1,7 @@
 package service
 
 import (
+	"fmt"
 	tg "github.com/go-telegram-bot-api/telegram-bot-api"
 	"net/http"
 )
@@ -9,6 +10,7 @@ func MustNewBot(token string) *tg.BotAPI {
 	var c *http.Client
 	transport, ok := http.DefaultTransport.(*http.Transport)
 	if ok {
+		fmt.Println("DisableKeepAlives true")
 		transport.DisableKeepAlives = true
 		var rt http.RoundTripper = transport
 		c = &http.Client{Transport: rt}
