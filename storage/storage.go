@@ -400,8 +400,6 @@ func (s storage) GetCustomer(ctx context.Context, customerId uint64) (c types.Cu
 		return c, fmt.Errorf("failed to get customer: %w", err)
 	}
 
-	fmt.Printf("CUSTOMER: %v\n", c)
-
 	return c, nil
 }
 
