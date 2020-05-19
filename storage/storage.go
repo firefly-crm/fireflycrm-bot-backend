@@ -788,7 +788,7 @@ func (s storage) CreateOrder(ctx context.Context, userId uint64) (id uint64, err
 	const checkUserExists = `SELECT EXISTS(SELECT * FROM users WHERE id=$1)`
 	const createOrderQuery = `
 INSERT INTO orders(user_id, user_order_id) 
-VALUES ($1,(SELECT MAX(user_order_id)+1 FROM orders WHERE user_id=$1)) RETURNING id`
+VALUES ($1,COALESCE((SELECT MAX(user_order_id)+1 FROM orders WHERE user_id=$1),0)) RETURNING id`
 
 	tx, err := s.db.BeginTxx(ctx, nil)
 	if err != nil {
