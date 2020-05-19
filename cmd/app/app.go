@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"github.com/firefly-crm/common/infra"
 	"github.com/firefly-crm/common/logger"
 	"github.com/firefly-crm/common/rabbit"
@@ -35,12 +34,12 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+
 	serviceConfig := config.Config{}
 	err = viper.Unmarshal(&serviceConfig)
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println(serviceConfig.Rabbit)
 
 	rabbitConfig := rabbit.Config{
 		Endpoint: serviceConfig.Rabbit,
