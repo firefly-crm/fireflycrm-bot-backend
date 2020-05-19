@@ -14,7 +14,7 @@ import (
 type (
 	Storage interface {
 		GetOrder(ctx context.Context, orderId uint64) (types.Order, error)
-		CreateOrder(ctx context.Context, userId uint64) (uint64, error)
+		CreateOrder(ctx context.Context, userId uint64) (types.Order, error)
 		CreateUser(ctx context.Context, userId uint64) error
 		SetMerchantData(ctx context.Context, userId uint64, merchantId, secretKey string) error
 		GetOrderByMessageId(ctx context.Context, userId, messageId uint64) (order types.Order, err error)
@@ -784,15 +784,15 @@ func (s storage) CreateUser(ctx context.Context, userId uint64) error {
 	return nil
 }
 
-func (s storage) CreateOrder(ctx context.Context, userId uint64) (id uint64, err error) {
+func (s storage) CreateOrder(ctx context.Context, userId uint64) (order types.Order, err error) {
 	const checkUserExists = `SELECT EXISTS(SELECT * FROM users WHERE id=$1)`
 	const createOrderQuery = `
 INSERT INTO orders(user_id, user_order_id) 
-VALUES ($1,COALESCE((SELECT MAX(user_order_id)+1 FROM orders WHERE user_id=$1),0)) RETURNING id`
+VALUES ($1,(SELECT COALESCE(MAX(user_order_id)+1, 1) FROM orders WHERE user_id=$1)) RETURNING *`
 
 	tx, err := s.db.BeginTxx(ctx, nil)
 	if err != nil {
-		return id, fmt.Errorf("failed to start transaction: %w", err)
+		return order, fmt.Errorf("failed to start transaction: %w", err)
 	}
 	defer func() {
 		if err != nil {
@@ -806,16 +806,16 @@ VALUES ($1,COALESCE((SELECT MAX(user_order_id)+1 FROM orders WHERE user_id=$1),0
 
 	err = tx.Get(&isExists, checkUserExists, userId)
 	if err != nil {
-		return id, fmt.Errorf("failed to check if user exists: %w", err)
+		return order, fmt.Errorf("failed to check if user exists: %w", err)
 	}
 	if !isExists {
-		return id, ErrNoSuchUser
+		return order, ErrNoSuchUser
 	}
 
-	err = tx.Get(&id, createOrderQuery, userId)
+	err = tx.Get(&order, createOrderQuery, userId)
 	if err != nil {
-		return id, fmt.Errorf("failed to create new order: %w", err)
+		return order, fmt.Errorf("failed to create new order: %w", err)
 	}
 
-	return id, nil
+	return order, nil
 }

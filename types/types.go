@@ -174,7 +174,7 @@ func (o Order) getCollapsedMessageString() string {
 }
 
 func (o Order) getDeletedMessageString() string {
-	return fmt.Sprintf("*Заказ #%d.* _Удалён_.", o.Id)
+	return fmt.Sprintf("*Заказ #%d.* _Удалён_.", o.UserOrderId)
 }
 
 func (o Order) getFullMessageString(c *Customer) string {

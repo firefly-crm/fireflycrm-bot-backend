@@ -5,6 +5,7 @@ import (
 	"fmt"
 	tg "github.com/DarthRamone/telegram-bot-api"
 	"github.com/firefly-crm/common/logger"
+	"github.com/firefly-crm/fireflycrm-bot-backend/types"
 )
 
 func (s Service) createOrder(ctx context.Context, userId, messageId uint64) error {
@@ -12,12 +13,12 @@ func (s Service) createOrder(ctx context.Context, userId, messageId uint64) erro
 
 	log := logger.FromContext(ctx)
 
-	orderId, err := s.OrderBook.CreateOrder(ctx, userId)
+	order, err := s.OrderBook.CreateOrder(ctx, userId)
 	if err != nil {
 		return fmt.Errorf("failed to create order: %w", err)
 	}
 
-	messageText := fmt.Sprintf(`*Заказ №%d*`, orderId)
+	messageText := order.MessageString(nil, types.DisplayModeFull)
 
 	deleteMessage := tg.NewDeleteMessage(uid, int(messageId))
 	_, err = s.Bot.DeleteMessage(deleteMessage)
@@ -34,7 +35,7 @@ func (s Service) createOrder(ctx context.Context, userId, messageId uint64) erro
 		return fmt.Errorf("failed to send message: %w", err)
 	}
 
-	err = s.OrderBook.UpdateMessageForOrder(ctx, userId, orderId, uint64(orderMessage.MessageID))
+	err = s.OrderBook.UpdateMessageForOrder(ctx, userId, order.Id, uint64(orderMessage.MessageID))
 	if err != nil {
 		return fmt.Errorf("failed to update message id for order: %v", err)
 	}
