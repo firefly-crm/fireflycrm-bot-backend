@@ -14,6 +14,7 @@ require (
 	github.com/hexdigest/gowrap v1.1.7
 	github.com/jmoiron/sqlx v1.2.1-0.20190826204134-d7d95172beb5
 	github.com/lib/pq v1.1.0
+	github.com/spf13/viper v1.7.0
 	github.com/technoweenie/multipartstreamer v1.0.1 // indirect
 	golang.org/x/sync v0.0.0-20190911185100-cd5d95a43a6e
 	golang.org/x/tools v0.0.0-20200502202811-ed308ab3e770 // indirect

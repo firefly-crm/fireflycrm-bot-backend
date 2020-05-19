@@ -8,15 +8,15 @@ import (
 	"github.com/firefly-crm/common/rabbit"
 	"github.com/firefly-crm/common/rabbit/exchanges"
 	"github.com/firefly-crm/common/rabbit/routes"
+	"github.com/firefly-crm/fireflycrm-bot-backend/config"
 	"github.com/firefly-crm/fireflycrm-bot-backend/orderbook"
 	"github.com/firefly-crm/fireflycrm-bot-backend/service"
 	"github.com/firefly-crm/fireflycrm-bot-backend/storage"
 	"github.com/firefly-crm/fireflycrm-bot-backend/users"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
+	"github.com/spf13/viper"
 	"golang.org/x/sync/errgroup"
-	"log"
-	"os"
 )
 
 func main() {
@@ -28,31 +28,22 @@ func main() {
 
 	infraCtx := infra.Context()
 
-	//TODO: Config map
-	rabbitUsername := os.Getenv("RMQ_USERNAME")
-	if rabbitUsername == "" {
-		log.Fatalf("rabbit username is empty")
+	viper.SetConfigName("config")
+	viper.SetConfigType("yaml")
+	viper.AddConfigPath(".")
+	err := viper.ReadInConfig()
+	if err != nil {
+		panic(err)
 	}
-
-	rabbitPassword := os.Getenv("RMQ_PASSWORD")
-	if rabbitPassword == "" {
-		log.Fatal("rabbit password is empty")
+	serviceConfig := config.Config{}
+	err = viper.Unmarshal(&serviceConfig)
+	if err != nil {
+		panic(err)
 	}
-
-	rabbitHost := os.Getenv("RMQ_HOST")
-	if rabbitHost == "" {
-		log.Fatalf("rabbit host is empty")
-	}
-
-	rabbitPort := os.Getenv("RMQ_PORT")
-	if rabbitPort == "" {
-		log.Fatalf("rabbit port is empty")
-	}
-
-	rabbitConnString := fmt.Sprintf("amqp://%s:%s@%s:%s", rabbitUsername, rabbitPassword, rabbitHost, rabbitPort)
+	fmt.Println(serviceConfig.Rabbit)
 
 	rabbitConfig := rabbit.Config{
-		Endpoint: rabbitConnString,
+		Endpoint: serviceConfig.Rabbit,
 	}
 	rabbitPrimary := rabbit.MustNew(rabbitConfig)
 
@@ -64,40 +55,7 @@ func main() {
 	tgExchange := exchanges.MustExchangeByID(exchanges.FireflyCRMTelegramUpdates)
 	rp := rabbitPrimary.MustNewExchange(tgExchange.Opts)
 
-	pgHost := os.Getenv("POSTGRES_HOST")
-	if pgHost == "" {
-		panic("pg host is unset; use POSTGRES_HOST env")
-	}
-
-	pgUser := os.Getenv("POSTGRES_USER")
-	if pgUser == "" {
-		panic("pg username is unset; use POSTGRES_USER env")
-	}
-
-	pgPassword := os.Getenv("POSTGRES_PASSWORD")
-	if pgPassword == "" {
-		panic("pg password is unset; use POSTGRES_PASSWORD env")
-	}
-
-	pgDBName := os.Getenv("POSTGRES_DB")
-	if pgDBName == "" {
-		panic("pg db is unset; user POSTGRES_DB env")
-	}
-
-	pgPort := "5432"
-	envPort := os.Getenv("POSTGRES_PORT")
-	if envPort != "" {
-		pgPort = envPort
-	}
-
-	pgConnString := fmt.Sprintf("user=%s password=%s dbname=%s port=%s host=%s sslmode=disable", pgUser, pgPassword, pgDBName, pgPort, pgHost)
-
-	tgToken := os.Getenv("TG_TOKEN")
-	if tgToken == "" {
-		log.Fatalf("telegram token is not set")
-	}
-
-	db, err := sqlx.Connect("postgres", pgConnString)
+	db, err := sqlx.Connect("postgres", serviceConfig.Db)
 	if err != nil {
 		panic(err)
 	}
@@ -105,7 +63,7 @@ func main() {
 	ob := orderbook.MustNewOrderBook(stor)
 	u := users.NewUsers(stor)
 
-	bot := service.MustNewBot(tgToken)
+	bot := service.MustNewBot(serviceConfig.TgToken)
 	backend := service.Service{
 		Bot:       bot,
 		OrderBook: ob,
