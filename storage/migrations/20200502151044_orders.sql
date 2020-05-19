@@ -3,6 +3,7 @@
 CREATE TABLE orders
 (
     id                BIGSERIAL PRIMARY KEY,
+    user_order_id     INT NOT NULL,
     user_id           BIGINT REFERENCES users,
     customer_id       BIGINT REFERENCES customers,
     description       TEXT        NOT NULL DEFAULT '',
