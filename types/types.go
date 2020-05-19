@@ -120,6 +120,7 @@ type (
 	OrderMessage struct {
 		Id          uint64      `db:"id"`
 		OrderId     uint64      `db:"order_id"`
+		UserId      uint64      `db:"user_id"`
 		DisplayMode DisplayMode `db:"display_mode"`
 	}
 

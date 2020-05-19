@@ -9,7 +9,7 @@ import (
 )
 
 func (s Service) processItemEditQty(ctx context.Context, callback *tp.CallbackEvent) error {
-	order, err := s.OrderBook.GetOrderByMessageId(ctx, callback.MessageId)
+	order, err := s.OrderBook.GetOrderByMessageId(ctx, callback.UserId, callback.MessageId)
 	if err != nil {
 		return fmt.Errorf("failed to get order by message id: %w", err)
 	}
@@ -38,7 +38,7 @@ func (s Service) processItemEditQty(ctx context.Context, callback *tp.CallbackEv
 }
 
 func (s Service) processItemEditPrice(ctx context.Context, callback *tp.CallbackEvent) error {
-	order, err := s.OrderBook.GetOrderByMessageId(ctx, callback.MessageId)
+	order, err := s.OrderBook.GetOrderByMessageId(ctx, callback.UserId, callback.MessageId)
 	if err != nil {
 		return fmt.Errorf("failed to get order by message id: %w", err)
 	}
@@ -67,7 +67,7 @@ func (s Service) processItemEditPrice(ctx context.Context, callback *tp.Callback
 }
 
 func (s Service) processItemEditName(ctx context.Context, callback *tp.CallbackEvent) error {
-	order, err := s.OrderBook.GetOrderByMessageId(ctx, callback.MessageId)
+	order, err := s.OrderBook.GetOrderByMessageId(ctx, callback.UserId, callback.MessageId)
 	if err != nil {
 		return fmt.Errorf("failed to get order by message id: %w", err)
 	}

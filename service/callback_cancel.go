@@ -8,9 +8,9 @@ import (
 	"github.com/firefly-crm/fireflycrm-bot-backend/types"
 )
 
-func (s Service) processCancelCallback(ctx context.Context, messageId uint64) error {
+func (s Service) processCancelCallback(ctx context.Context, userId, messageId uint64) error {
 
-	order, err := s.OrderBook.GetOrderByMessageId(ctx, messageId)
+	order, err := s.OrderBook.GetOrderByMessageId(ctx, userId, messageId)
 	if err != nil {
 		return fmt.Errorf("failed to get order: %w", err)
 	}
@@ -51,7 +51,7 @@ func (s Service) processCancelCallback(ctx context.Context, messageId uint64) er
 		}
 	}
 
-	err = s.updateOrderMessage(ctx, messageId, true)
+	err = s.updateOrderMessage(ctx, userId, messageId, true)
 	if err != nil {
 		return fmt.Errorf("failed to update order message: %w", err)
 	}

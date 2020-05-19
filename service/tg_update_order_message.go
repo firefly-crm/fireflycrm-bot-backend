@@ -8,15 +8,15 @@ import (
 	"github.com/firefly-crm/fireflycrm-bot-backend/types"
 )
 
-func (s Service) updateOrderMessage(ctx context.Context, messageId uint64, flowCompleted bool) error {
+func (s Service) updateOrderMessage(ctx context.Context, userId, messageId uint64, flowCompleted bool) error {
 	log := logger.FromContext(ctx)
 
-	order, err := s.OrderBook.GetOrderByMessageId(ctx, messageId)
+	order, err := s.OrderBook.GetOrderByMessageId(ctx, userId, messageId)
 	if err != nil {
 		return fmt.Errorf("failed to get order: %w", err)
 	}
 
-	orderMessage, err := s.OrderBook.GetOrderMessage(ctx, messageId)
+	orderMessage, err := s.OrderBook.GetOrderMessage(ctx, userId, messageId)
 	if err != nil {
 		return fmt.Errorf("failed to get order message: %w", err)
 	}
@@ -39,7 +39,7 @@ func (s Service) updateOrderMessage(ctx context.Context, messageId uint64, flowC
 	editMessage.DisableWebPagePreview = true
 	var markup tg.InlineKeyboardMarkup
 	if flowCompleted {
-		markup, err = startOrderInlineKeyboard(ctx, s, messageId)
+		markup, err = startOrderInlineKeyboard(ctx, s, userId, messageId)
 		if err != nil {
 			return fmt.Errorf("failed to get order inline kb: %w", err)
 		}

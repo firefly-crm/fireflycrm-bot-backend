@@ -34,12 +34,12 @@ func (s Service) createOrder(ctx context.Context, userId, messageId uint64) erro
 		return fmt.Errorf("failed to send message: %w", err)
 	}
 
-	err = s.OrderBook.UpdateMessageForOrder(ctx, orderId, uint64(orderMessage.MessageID))
+	err = s.OrderBook.UpdateMessageForOrder(ctx, userId, orderId, uint64(orderMessage.MessageID))
 	if err != nil {
 		return fmt.Errorf("failed to update message id for order: %v", err)
 	}
 
-	messageReplyMarkup, err := startOrderInlineKeyboard(ctx, s, uint64(orderMessage.MessageID))
+	messageReplyMarkup, err := startOrderInlineKeyboard(ctx, s, userId, uint64(orderMessage.MessageID))
 	if err != nil {
 		return fmt.Errorf("failed to get start order inline markup: %w", err)
 	}

@@ -75,7 +75,7 @@ func (s Service) checkPayments(ctx context.Context) error {
 				continue
 			}
 
-			messages, err := s.Storage.GetMessagesForOrder(ctx, order.Id)
+			messages, err := s.Storage.GetMessagesForOrder(ctx, user.Id, order.Id)
 			if err != nil {
 				log.Errorf("failed to get messages for order: %w", err)
 				continue
@@ -95,7 +95,7 @@ func (s Service) checkPayments(ctx context.Context) error {
 				continue
 			}
 
-			err = s.updateOrderMessage(ctx, messages[0].Id, true)
+			err = s.updateOrderMessage(ctx, user.Id, messages[0].Id, true)
 			if err != nil {
 				log.Errorf("failed to update order message: %v", err)
 				continue
