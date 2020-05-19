@@ -10,10 +10,10 @@ import (
 	"time"
 )
 
-func (s Service) startPaymentsWatcher(ctx context.Context) {
+func (s Service) StartPaymentsWatcher(ctx context.Context, interval time.Duration) error {
 	log := logger.FromContext(ctx)
 
-	ticker := time.NewTicker(time.Minute * 1)
+	ticker := time.NewTicker(interval)
 	defer func() {
 		ticker.Stop()
 	}()
@@ -30,6 +30,8 @@ outsideLoop:
 			}
 		}
 	}
+
+	return nil
 }
 
 func (s Service) checkPayments(ctx context.Context) error {

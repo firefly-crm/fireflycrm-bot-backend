@@ -73,6 +73,10 @@ func main() {
 	errGroup, ctx := errgroup.WithContext(infraCtx)
 
 	errGroup.Go(func() error {
+		return backend.StartPaymentsWatcher(infraCtx, serviceConfig.WatcherInterval)
+	})
+
+	errGroup.Go(func() error {
 		return rp.Queue(routes.TelegramCallbackUpdate).Consume(ctx, backend.ProcessCallbackEvent)
 	})
 	errGroup.Go(func() error { return rp.Queue(routes.TelegramCommandUpdate).Consume(ctx, backend.ProcessCommandEvent) })
