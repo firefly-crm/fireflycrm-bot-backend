@@ -71,7 +71,7 @@ func (s storage) GetMessagesForOrder(ctx context.Context, userId, orderId uint64
 	return
 }
 
-func (s storage) UpdateOrderDueDate(ctx, userId, orderId uint64, date time.Time) error {
+func (s storage) UpdateOrderDueDate(ctx context.Context, userId, orderId uint64, date time.Time) error {
 	const updateQuery = `UPDATE orders SET due_date=$3 WHERE user_id=$2 AND id=$1`
 	_, err := s.db.Exec(updateQuery, orderId, userId, date)
 	if err != nil {
