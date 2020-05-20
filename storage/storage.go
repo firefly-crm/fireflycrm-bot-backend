@@ -237,7 +237,7 @@ func NewStorage(db *sqlx.DB) Storage {
 }
 
 func (s storage) UpdateOrderMessageDisplayMode(ctx context.Context, messageId, userId uint64, mode types.DisplayMode) error {
-	const updateQuery = `UPDATE order_messages SET display_mode=$2 WHERE user_id=$1 AND id=$2`
+	const updateQuery = `UPDATE order_messages SET display_mode=$3 WHERE user_id=$1 AND id=$2`
 	_, err := s.db.Exec(updateQuery, userId, messageId, mode)
 	if err != nil {
 		return fmt.Errorf("failed to update display mode: %w", err)
