@@ -31,20 +31,20 @@ func startOrderInlineKeyboard(ctx context.Context, s Service, userId, messageId 
 		return markup, fmt.Errorf("failed to get order for markup: %w", err)
 	}
 
-	customerButton := tg.NewInlineKeyboardButtonData(kbCustomer, kbDataCustomer)
-	paymentButton := tg.NewInlineKeyboardButtonData(kbPayment, kbDataPayment)
-	actionsButton := tg.NewInlineKeyboardButtonData(kbOrderActions, kbDataOrderActions)
-	itemsButton := tg.NewInlineKeyboardButtonData(kbItems, kbDataItems)
+	customerButton := tg.NewInlineKeyboardButtonData(kbCustomerPictogram, kbDataCustomer)
+	paymentButton := tg.NewInlineKeyboardButtonData(kbPaymentPictogram, kbDataPayment)
+	actionsButton := tg.NewInlineKeyboardButtonData(kbOrderActionsPictogram, kbDataOrderActions)
+	itemsButton := tg.NewInlineKeyboardButtonData(kbItemsPictogram, kbDataItems)
 
 	if order.OrderState != types.OrderStateDone {
 		var row1 []tg.InlineKeyboardButton
 		if !order.CustomerId.Valid {
-			row1 = []tg.InlineKeyboardButton{itemsButton, customerButton}
+			row1 = []tg.InlineKeyboardButton{itemsButton, customerButton, actionsButton}
 		} else {
-			row1 = []tg.InlineKeyboardButton{itemsButton, customerButton, paymentButton}
+			row1 = []tg.InlineKeyboardButton{itemsButton, customerButton, paymentButton, actionsButton}
 		}
-		row2 := []tg.InlineKeyboardButton{actionsButton}
-		markup = tg.NewInlineKeyboardMarkup(row1, row2)
+		//row2 := []tg.InlineKeyboardButton{actionsButton}
+		markup = tg.NewInlineKeyboardMarkup(row1)
 	} else {
 		row1 := []tg.InlineKeyboardButton{customerButton, paymentButton, actionsButton}
 		markup = tg.NewInlineKeyboardMarkup(row1)
@@ -56,6 +56,23 @@ func startOrderInlineKeyboard(ctx context.Context, s Service, userId, messageId 
 func restoreDeletedOrderInlineKeyboard() tg.InlineKeyboardMarkup {
 	restoreButton := tg.NewInlineKeyboardButtonData(kbOrderRestore, kbDataOrderRestore)
 	return tg.NewInlineKeyboardMarkup(tg.NewInlineKeyboardRow(restoreButton))
+}
+
+func orderEditEntriesInlineKeyboard(ctx context.Context, s Service, userId, messageId uint64) (tg.InlineKeyboardMarkup, error) {
+	var markup tg.InlineKeyboardMarkup
+
+	order, err := s.OrderBook.GetOrderByMessageId(ctx, userId, messageId)
+	if err != nil {
+		return markup, fmt.Errorf("failed to get order for markup: %w", err)
+	}
+
+	data := fmt.Sprintf("%s_%d", kbDataOrderEditDate, order.Id)
+
+	editDateButton := tg.NewInlineKeyboardButtonData(kbOrderEditDueDate, data)
+	backButton := tg.NewInlineKeyboardButtonData(kbBack, kbDataBack)
+
+	markup = tg.NewInlineKeyboardMarkup(tg.NewInlineKeyboardRow(editDateButton), tg.NewInlineKeyboardRow(backButton))
+	return markup, nil
 }
 
 func orderActionsInlineKeyboard(ctx context.Context, s Service, userId, messageId uint64) (tg.InlineKeyboardMarkup, error) {
@@ -71,6 +88,7 @@ func orderActionsInlineKeyboard(ctx context.Context, s Service, userId, messageI
 	inProgressButton := tg.NewInlineKeyboardButtonData(kbOrderInProgress, kbDataOrderInProgress)
 	collapseButton := tg.NewInlineKeyboardButtonData(kbOrderCollapse, kbDataOrderCollapse)
 	restartButton := tg.NewInlineKeyboardButtonData(kbOrderRestart, kbDataOrderRestart)
+	editButton := tg.NewInlineKeyboardButtonData(kbOrderEdit, kbDataOrderEdit)
 	deleteButton := tg.NewInlineKeyboardButtonData(kbOrderDelete, kbDataOrderDelete)
 	backButton := tg.NewInlineKeyboardButtonData(kbBack, kbDataBack)
 
@@ -94,7 +112,7 @@ func orderActionsInlineKeyboard(ctx context.Context, s Service, userId, messageI
 		rows = append(rows, []tg.InlineKeyboardButton{restartButton})
 	}
 
-	rows = append(rows, []tg.InlineKeyboardButton{deleteButton})
+	rows = append(rows, []tg.InlineKeyboardButton{editButton, deleteButton})
 	rows = append(rows, []tg.InlineKeyboardButton{backButton})
 
 	return tg.NewInlineKeyboardMarkup(rows...), nil

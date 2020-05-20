@@ -11,6 +11,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"time"
 )
 
 func (s Service) ProcessPromptEvent(ctx context.Context, promptEvent *tp.PromptEvent) error {
@@ -177,6 +178,16 @@ func (s Service) ProcessPromptEvent(ctx context.Context, promptEvent *tp.PromptE
 		_, err = s.Storage.UpdateCustomerPhone(ctx, phone, activeOrder.Id)
 		if err != nil {
 			return fmt.Errorf("failed to update customer phone: %w", err)
+		}
+	case types.EditStateWaitingOrderDueDate:
+		dueDate, err := time.Parse("02.01.2006", text)
+		if err != nil {
+			return fmt.Errorf("failed to parse due date text: %w", err)
+		}
+
+		err = s.Storage.UpdateOrderDueDate(ctx, userId, activeOrder.Id, dueDate)
+		if err != nil {
+			return fmt.Errorf("failed to update order due date: %w", err)
 		}
 	}
 
