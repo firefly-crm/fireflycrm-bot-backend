@@ -3,7 +3,7 @@
 CREATE TABLE orders
 (
     id                BIGSERIAL PRIMARY KEY,
-    user_order_id     INT NOT NULL,
+    user_order_id     INT         NOT NULL,
     user_id           BIGINT REFERENCES users,
     customer_id       BIGINT REFERENCES customers,
     description       TEXT        NOT NULL DEFAULT '',
@@ -15,6 +15,7 @@ CREATE TABLE orders
     hint_message_id   BIGINT,
     order_state       SMALLINT    NOT NULL DEFAULT 0,
     edit_state        SMALLINT    NOT NULL DEFAULT 0,
+    due_date          DATE,
     created_at        TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at        TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
 );

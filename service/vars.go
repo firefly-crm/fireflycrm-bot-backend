@@ -31,6 +31,8 @@ const (
 	kbOrderInProgress      = "В работу"
 	kbOrderRestart         = "Возобновить"
 	kbOrderDelete          = "Удалить"
+	kbOrderEdit            = "Изменить"
+	kbOrderEditDueDate     = "Срок сдачи"
 	kbOrderRestore         = "Восстановить"
 	kbOrderCollapse        = "Свернуть"
 	kbOrderExpand          = "Развернуть"
@@ -64,6 +66,8 @@ const (
 	kbDataOrderRestore    = "order_restore"
 	kbDataOrderCollapse   = "order_collapse"
 	kbDataOrderExpand     = "order_expand"
+	kbDataOrderEdit       = "order_edit"
+	kbDataOrderEditDate   = "order_edit_date"
 	kbDataOrderInProgress = "order_state_in_progress"
 	kbDataDelivery        = "delivery"
 	kbDataLingerieSet     = "lingerie"
@@ -80,4 +84,5 @@ const (
 	replyEnterCustomerInstagram       = "Введите имя пользователя"
 	replyEnterCustomerPhone           = "Введите номер телефона"
 	replyEnterAmount                  = "Введите сумму"
+	replyEnterOrderDueDate            = "Введите срок сдачи в формате ДД.ММ.ГГГГ"
 )

@@ -285,6 +285,13 @@ func (s Service) ProcessCallbackEvent(ctx context.Context, callbackEvent *tp.Cal
 		if err != nil {
 			return fmt.Errorf("failed to process item edit name callbackEvent: %w", err)
 		}
+	case tp.CallbackType_ORDER_EDIT:
+		markup, err = orderEditEntriesInlineKeyboard(ctx, s, userId, messageId)
+		if err != nil {
+			return fmt.Errorf("failed to get order edit kb markup: %w", err)
+		}
+	case tp.CallbackType_ORDER_EDIT_DUE_DATE:
+
 	default:
 		return fmt.Errorf("unknown callbackEvent event: %v", event)
 	}

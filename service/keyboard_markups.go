@@ -58,6 +58,23 @@ func restoreDeletedOrderInlineKeyboard() tg.InlineKeyboardMarkup {
 	return tg.NewInlineKeyboardMarkup(tg.NewInlineKeyboardRow(restoreButton))
 }
 
+func orderEditEntriesInlineKeyboard(ctx context.Context, s Service, userId, messageId uint64) (tg.InlineKeyboardMarkup, error) {
+	var markup tg.InlineKeyboardMarkup
+
+	order, err := s.OrderBook.GetOrderByMessageId(ctx, userId, messageId)
+	if err != nil {
+		return markup, fmt.Errorf("failed to get order for markup: %w", err)
+	}
+
+	data := fmt.Sprintf("%s_%d", kbDataOrderEditDate, order.Id)
+
+	editDateButton := tg.NewInlineKeyboardButtonData(kbOrderEditDueDate, data)
+	backButton := tg.NewInlineKeyboardButtonData(kbBack, kbDataBack)
+
+	markup = tg.NewInlineKeyboardMarkup(tg.NewInlineKeyboardRow(editDateButton), tg.NewInlineKeyboardRow(backButton))
+	return markup, nil
+}
+
 func orderActionsInlineKeyboard(ctx context.Context, s Service, userId, messageId uint64) (tg.InlineKeyboardMarkup, error) {
 	var markup tg.InlineKeyboardMarkup
 	var rows [][]tg.InlineKeyboardButton
@@ -71,6 +88,7 @@ func orderActionsInlineKeyboard(ctx context.Context, s Service, userId, messageI
 	inProgressButton := tg.NewInlineKeyboardButtonData(kbOrderInProgress, kbDataOrderInProgress)
 	collapseButton := tg.NewInlineKeyboardButtonData(kbOrderCollapse, kbDataOrderCollapse)
 	restartButton := tg.NewInlineKeyboardButtonData(kbOrderRestart, kbDataOrderRestart)
+	editButton := tg.NewInlineKeyboardButtonData(kbOrderEdit, kbDataOrderEdit)
 	deleteButton := tg.NewInlineKeyboardButtonData(kbOrderDelete, kbDataOrderDelete)
 	backButton := tg.NewInlineKeyboardButtonData(kbBack, kbDataBack)
 
@@ -94,7 +112,7 @@ func orderActionsInlineKeyboard(ctx context.Context, s Service, userId, messageI
 		rows = append(rows, []tg.InlineKeyboardButton{restartButton})
 	}
 
-	rows = append(rows, []tg.InlineKeyboardButton{deleteButton})
+	rows = append(rows, []tg.InlineKeyboardButton{editButton, deleteButton})
 	rows = append(rows, []tg.InlineKeyboardButton{backButton})
 
 	return tg.NewInlineKeyboardMarkup(rows...), nil

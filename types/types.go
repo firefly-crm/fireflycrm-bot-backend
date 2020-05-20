@@ -24,6 +24,7 @@ const (
 	EditStateWaitingCustomerPhone
 	EditStateWaitingPaymentAmount
 	EditStateWaitingRefundAmount
+	EditStateWaitingOrderDueDate
 )
 
 const (
@@ -96,6 +97,7 @@ type (
 		Amount          uint32        `db:"amount"`
 		PayedAmount     uint32        `db:"payed_amount"`
 		RefundAmount    uint32        `db:"refund_amount"`
+		DueDate         sql.NullTime  `db:"due_date"`
 		CreatedAt       time.Time     `db:"created_at"`
 		UpdatedAt       time.Time     `db:"updated_at"`
 		ReceiptItems    []ReceiptItem
@@ -189,9 +191,17 @@ func (o Order) getFullMessageString(c *Customer) string {
 
 	result := fmt.Sprintf(
 		`*Заказ #%d* _(%s)_
-*Создан:* %s
-*Сумма:* %.2f₽
-`, o.UserOrderId, o.OrderState.MessageString(), createdAt, amount)
+*Создан:* %s`, o.UserOrderId, o.OrderState.MessageString(), createdAt)
+
+	if o.DueDate.Valid {
+		dueDate := o.DueDate.Time.In(loc).Format("02.01.2006")
+
+		result += fmt.Sprintf(`
+*Срок сдачи:* %s`, dueDate)
+	}
+
+	result += fmt.Sprintf(`
+*Сумма:* %.2f₽`, amount)
 
 	if o.Amount != 0 && o.PayedAmount != 0 {
 		if o.PayedAmount >= o.Amount {
