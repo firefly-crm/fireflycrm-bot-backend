@@ -9,23 +9,6 @@ import (
 	"github.com/firefly-crm/fireflycrm-bot-backend/types"
 )
 
-func (s Service) processPaymentRefund(ctx context.Context, callbackQuery *tg.CallbackQuery, paymentId uint64, amount uint32) error {
-	messageId := uint64(callbackQuery.Message.MessageID)
-	userId := uint64(callbackQuery.Message.From.ID)
-
-	err := s.OrderBook.RefundPayment(ctx, paymentId, amount)
-	if err != nil {
-		return fmt.Errorf("failed to remove payment: %w", err)
-	}
-
-	err = s.updateOrderMessage(ctx, userId, messageId, true)
-	if err != nil {
-		return fmt.Errorf("failed to refresh order message: %w", err)
-	}
-
-	return nil
-}
-
 func (s Service) processRefundCallback(ctx context.Context, order types.Order, userId, messageId uint64, amount uint32) error {
 	log := logger.FromContext(ctx)
 

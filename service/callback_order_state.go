@@ -3,7 +3,6 @@ package service
 import (
 	"context"
 	"fmt"
-	tg "github.com/DarthRamone/telegram-bot-api"
 	"github.com/firefly-crm/fireflycrm-bot-backend/types"
 )
 
@@ -37,28 +36,6 @@ func (s Service) processOrderStateCallback(ctx context.Context, userId, messageI
 				return fmt.Errorf("failed to update display mode: %w", err)
 			}
 		}
-	}
-
-	err = s.updateOrderMessage(ctx, userId, messageId, true)
-	if err != nil {
-		return fmt.Errorf("failed to update order message: %w", err)
-	}
-
-	return nil
-}
-
-func (s Service) processOrderEditStateCallback(ctx context.Context, callbackQuery *tg.CallbackQuery, state types.EditState) error {
-	messageId := uint64(callbackQuery.Message.MessageID)
-	userId := uint64(callbackQuery.Message.From.ID)
-
-	order, err := s.OrderBook.GetOrderByMessageId(ctx, userId, messageId)
-	if err != nil {
-		return fmt.Errorf("failed to get order by message id: %w", err)
-	}
-
-	err = s.OrderBook.UpdateOrderEditState(ctx, order.Id, state)
-	if err != nil {
-		return fmt.Errorf("failed to update order state(%v): %w", state, err)
 	}
 
 	err = s.updateOrderMessage(ctx, userId, messageId, true)
