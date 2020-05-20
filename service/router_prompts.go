@@ -185,7 +185,7 @@ func (s Service) ProcessPromptEvent(ctx context.Context, promptEvent *tp.PromptE
 			return fmt.Errorf("failed to parse due date text: %w", err)
 		}
 
-		err = s.Storage.UpdateOrderDueDate(ctx, userId, activeMessageId, dueDate)
+		err = s.Storage.UpdateOrderDueDate(ctx, userId, activeOrder.Id, dueDate)
 		if err != nil {
 			return fmt.Errorf("failed to update order due date: %w", err)
 		}

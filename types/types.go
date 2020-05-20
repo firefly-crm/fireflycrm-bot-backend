@@ -201,7 +201,8 @@ func (o Order) getFullMessageString(c *Customer) string {
 	}
 
 	result += fmt.Sprintf(`
-*Сумма:* %.2f₽`, amount)
+*Сумма:* %.2f₽
+`, amount)
 
 	if o.Amount != 0 && o.PayedAmount != 0 {
 		if o.PayedAmount >= o.Amount {
