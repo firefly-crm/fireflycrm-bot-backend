@@ -12,7 +12,7 @@ func (s Service) processAddKnownItem(ctx context.Context, callback *tp.CallbackE
 	userId := int64(callback.UserId)
 	messageId := callback.MessageId
 
-	order, err := s.OrderBook.GetOrderByMessageId(ctx, messageId)
+	order, err := s.OrderBook.GetOrderByMessageId(ctx, callback.UserId, messageId)
 	if err != nil {
 		return fmt.Errorf("failed to get order by message id: %w", err)
 	}
@@ -59,7 +59,7 @@ func (s Service) processAddItemCallack(ctx context.Context, callback *tp.Callbac
 	userId := int64(callback.UserId)
 	messageId := callback.MessageId
 
-	order, err := s.OrderBook.GetOrderByMessageId(ctx, messageId)
+	order, err := s.OrderBook.GetOrderByMessageId(ctx, callback.UserId, messageId)
 	if err != nil {
 		return fmt.Errorf("failed to get order by message id: %w", err)
 	}

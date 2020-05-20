@@ -36,16 +36,16 @@ func (s Service) ProcessCallbackEvent(ctx context.Context, callbackEvent *tp.Cal
 	case tp.CallbackType_ITEMS:
 		markup = orderItemsInlineKeyboard()
 	case tp.CallbackType_BACK:
-		markup, err = startOrderInlineKeyboard(ctx, s, messageId)
+		markup, err = startOrderInlineKeyboard(ctx, s, userId, messageId)
 		if err != nil {
 			return fmt.Errorf("failed to get order inline kb: %w", err)
 		}
 	case tp.CallbackType_CANCEL:
-		markup, err = startOrderInlineKeyboard(ctx, s, messageId)
+		markup, err = startOrderInlineKeyboard(ctx, s, userId, messageId)
 		if err != nil {
 			return fmt.Errorf("failed to get order inline kb: %w", err)
 		}
-		err = s.processCancelCallback(ctx, messageId)
+		err = s.processCancelCallback(ctx, userId, messageId)
 		if err != nil {
 			return fmt.Errorf("failed to process cancel callbackEvent: %w", err)
 		}
@@ -56,58 +56,58 @@ func (s Service) ProcessCallbackEvent(ctx context.Context, callbackEvent *tp.Cal
 			return fmt.Errorf("failed to process add item callbackEvent: %w", err)
 		}
 	case tp.CallbackType_RECEIPT_ITEMS_REMOVE:
-		markup, err = itemsListInlineKeyboard(ctx, s, messageId, "remove")
+		markup, err = itemsListInlineKeyboard(ctx, s, userId, messageId, "remove")
 		if err != nil {
 			return fmt.Errorf("failed to get markup for remove items list: %w", err)
 		}
 	case tp.CallbackType_RECEIPT_ITEMS_EDIT:
-		markup, err = itemsListInlineKeyboard(ctx, s, messageId, "edit")
+		markup, err = itemsListInlineKeyboard(ctx, s, userId, messageId, "edit")
 		if err != nil {
 			return fmt.Errorf("failed to get markup for edit items list: %w", err)
 		}
 	case tp.CallbackType_CUSTOMER:
-		markup, err = customerInlineKeyboard(ctx, s, messageId)
+		markup, err = customerInlineKeyboard(ctx, s, userId, messageId)
 		if err != nil {
 			return fmt.Errorf("failed to get markup for customer action: %w", err)
 		}
 	case tp.CallbackType_PAYMENTS:
-		markup, err = paymentInlineKeyboard(ctx, s, messageId)
+		markup, err = paymentInlineKeyboard(ctx, s, userId, messageId)
 		if err != nil {
 			return fmt.Errorf("failed to get payment inline markup: %w", err)
 		}
 	case tp.CallbackType_ADD_PAYMENT_TRANSFER:
-		err = s.processAddPaymentCallback(ctx, messageId, types.PaymentMethodCard2Card)
+		err = s.processAddPaymentCallback(ctx, userId, messageId, types.PaymentMethodCard2Card)
 		if err != nil {
 			return fmt.Errorf("failed to add card payment to order: %w", err)
 		}
-		markup, err = paymentAmountInlineKeyboard(ctx, s, messageId)
+		markup, err = paymentAmountInlineKeyboard(ctx, s, userId, messageId)
 		if err != nil {
 			return fmt.Errorf("faield to get payment amount inline markup: %w", err)
 		}
 	case tp.CallbackType_ADD_PAYMENT_CASH:
-		err = s.processAddPaymentCallback(ctx, messageId, types.PaymentMethodCash)
+		err = s.processAddPaymentCallback(ctx, userId, messageId, types.PaymentMethodCash)
 		if err != nil {
 			return fmt.Errorf("failed to add cash payment to order: %w", err)
 		}
-		markup, err = paymentAmountInlineKeyboard(ctx, s, messageId)
+		markup, err = paymentAmountInlineKeyboard(ctx, s, userId, messageId)
 		if err != nil {
 			return fmt.Errorf("faield to get payment amount inline markup: %w", err)
 		}
 	case tp.CallbackType_ADD_PAYMENT_LINK:
-		err = s.processAddPaymentCallback(ctx, messageId, types.PaymentMethodAcquiring)
+		err = s.processAddPaymentCallback(ctx, userId, messageId, types.PaymentMethodAcquiring)
 		if err != nil {
 			return fmt.Errorf("failed to add link payment to order: %w", err)
 		}
-		markup, err = paymentAmountInlineKeyboard(ctx, s, messageId)
+		markup, err = paymentAmountInlineKeyboard(ctx, s, userId, messageId)
 		if err != nil {
 			return fmt.Errorf("faield to get payment amount inline markup: %w", err)
 		}
 	case tp.CallbackType_PAYMENT_AMOUNT_FULL:
-		err := s.processPaymentCallback(ctx, messageId, 0)
+		err := s.processPaymentCallback(ctx, userId, messageId, 0)
 		if err != nil {
 			return fmt.Errorf("failed to process full payment callbackEvent: %w", err)
 		}
-		markup, err = startOrderInlineKeyboard(ctx, s, messageId)
+		markup, err = startOrderInlineKeyboard(ctx, s, userId, messageId)
 		if err != nil {
 			return fmt.Errorf("failed to get order inline kb: %w", err)
 		}
@@ -119,7 +119,7 @@ func (s Service) ProcessCallbackEvent(ctx context.Context, callbackEvent *tp.Cal
 		}
 	case tp.CallbackType_PAYMENTS_REFUND:
 		var err error
-		markup, err = paymentsListInlineKeyboard(ctx, s, messageId, "refund")
+		markup, err = paymentsListInlineKeyboard(ctx, s, userId, messageId, "refund")
 		if err != nil {
 			return fmt.Errorf("failed to get payments list markup: %w", err)
 		}
@@ -130,82 +130,82 @@ func (s Service) ProcessCallbackEvent(ctx context.Context, callbackEvent *tp.Cal
 			return fmt.Errorf("failed to process partial refund callbackEvent: %w", err)
 		}
 	case tp.CallbackType_PAYMENT_REFUND_FULL:
-		order, err := s.OrderBook.GetOrderByMessageId(ctx, messageId)
+		order, err := s.OrderBook.GetOrderByMessageId(ctx, userId, messageId)
 		if err != nil {
 			return fmt.Errorf("failed to get order: %w", err)
 		}
-		err = s.processRefundCallback(ctx, order, messageId, 0)
+		err = s.processRefundCallback(ctx, order, userId, messageId, 0)
 		if err != nil {
 			return fmt.Errorf("failed to process refund callbackEvent: %w", err)
 		}
-		markup, err = startOrderInlineKeyboard(ctx, s, messageId)
+		markup, err = startOrderInlineKeyboard(ctx, s, userId, messageId)
 		if err != nil {
 			return fmt.Errorf("failed to get order inline kb: %w", err)
 		}
 	case tp.CallbackType_PAYMENTS_REMOVE:
-		markup, err = paymentsListInlineKeyboard(ctx, s, messageId, "remove")
+		markup, err = paymentsListInlineKeyboard(ctx, s, userId, messageId, "remove")
 		if err != nil {
 			return fmt.Errorf("failed to get payments list markup: %w", err)
 		}
 	case tp.CallbackType_ORDER_ACTIONS:
-		markup, err = orderActionsInlineKeyboard(ctx, s, messageId)
+		markup, err = orderActionsInlineKeyboard(ctx, s, userId, messageId)
 		if err != nil {
 			return fmt.Errorf("failed to get order actions markup: %w", err)
 		}
 	case tp.CallbackType_ORDER_STATE_DONE:
-		err := s.processOrderStateCallback(ctx, messageId, types.OrderStateDone)
+		err := s.processOrderStateCallback(ctx, userId, messageId, types.OrderStateDone)
 		if err != nil {
 			return fmt.Errorf("failed to process order done callbackEvent: %w", err)
 		}
-		markup, err = startOrderInlineKeyboard(ctx, s, messageId)
+		markup, err = startOrderInlineKeyboard(ctx, s, userId, messageId)
 		if err != nil {
 			return fmt.Errorf("failed to get order inline kb: %w", err)
 		}
 	case tp.CallbackType_ORDER_RESTART:
-		err := s.processOrderStateCallback(ctx, messageId, types.OrderStateForming)
+		err := s.processOrderStateCallback(ctx, userId, messageId, types.OrderStateForming)
 		if err != nil {
 			return fmt.Errorf("failed to process order restart callbackEvent: %w", err)
 		}
-		markup, err = startOrderInlineKeyboard(ctx, s, messageId)
+		markup, err = startOrderInlineKeyboard(ctx, s, userId, messageId)
 		if err != nil {
 			return fmt.Errorf("failed to get order inline kb: %w", err)
 		}
 	case tp.CallbackType_ORDER_DELETE:
-		err := s.processOrderStateCallback(ctx, messageId, types.OrderStateDeleted)
+		err := s.processOrderStateCallback(ctx, userId, messageId, types.OrderStateDeleted)
 		if err != nil {
 			return fmt.Errorf("failed to process order delete callbackEvent: %w", err)
 		}
 		markup = restoreDeletedOrderInlineKeyboard()
 	case tp.CallbackType_ORDER_RESTORE:
-		err := s.processOrderStateCallback(ctx, messageId, types.OrderStateForming)
+		err := s.processOrderStateCallback(ctx, userId, messageId, types.OrderStateForming)
 		if err != nil {
 			return fmt.Errorf("failed to process order restore callbackEvent: %w", err)
 		}
-		markup, err = startOrderInlineKeyboard(ctx, s, messageId)
+		markup, err = startOrderInlineKeyboard(ctx, s, userId, messageId)
 		if err != nil {
 			return fmt.Errorf("failed to get order inline kb: %w", err)
 		}
 	case tp.CallbackType_ORDER_STATE_IN_PROGRESS:
-		err := s.processOrderStateCallback(ctx, messageId, types.OrderStateInProgress)
+		err := s.processOrderStateCallback(ctx, userId, messageId, types.OrderStateInProgress)
 		if err != nil {
 			return fmt.Errorf("failed to process order restore callbackEvent: %w", err)
 		}
-		markup, err = startOrderInlineKeyboard(ctx, s, messageId)
+		markup, err = startOrderInlineKeyboard(ctx, s, userId, messageId)
 		if err != nil {
 			return fmt.Errorf("failed to get order inline kb: %w", err)
 		}
 	case tp.CallbackType_ORDER_COLLAPSE:
-		err := s.processOrderDisplayModeCallback(ctx, messageId, types.DisplayModeCollapsed)
+		err := s.processOrderDisplayModeCallback(ctx, userId, messageId, types.DisplayModeCollapsed)
 		if err != nil {
 			return fmt.Errorf("failed to process order collapse callbackEvent: %w", err)
 		}
 		markup = expandOrderInlineKeyboard()
 	case tp.CallbackType_ORDER_EXPAND:
-		err := s.processOrderDisplayModeCallback(ctx, messageId, types.DisplayModeFull)
+		err := s.processOrderDisplayModeCallback(ctx, userId, messageId, types.DisplayModeFull)
 		if err != nil {
 			return fmt.Errorf("failed to process order expand callbackEvent: %w", err)
 		}
-		markup, err = startOrderInlineKeyboard(ctx, s, messageId)
+		markup, err = startOrderInlineKeyboard(ctx, s, userId, messageId)
 		if err != nil {
 			return fmt.Errorf("failed to get order inline kb: %w", err)
 		}
@@ -246,12 +246,12 @@ func (s Service) ProcessCallbackEvent(ctx context.Context, callbackEvent *tp.Cal
 		if err != nil {
 			return fmt.Errorf("failed to process remove payment callbackEvent: %w", err)
 		}
-		markup, err = startOrderInlineKeyboard(ctx, s, messageId)
+		markup, err = startOrderInlineKeyboard(ctx, s, userId, messageId)
 		if err != nil {
 			return fmt.Errorf("failed to get order inline kb: %w", err)
 		}
 	case tp.CallbackType_PAYMENT_REFUND:
-		order, err := s.OrderBook.GetOrderByMessageId(ctx, messageId)
+		order, err := s.OrderBook.GetOrderByMessageId(ctx, userId, messageId)
 		if err != nil {
 			return fmt.Errorf("failed to get order: %w", err)
 		}

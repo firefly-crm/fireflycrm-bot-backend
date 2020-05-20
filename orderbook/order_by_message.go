@@ -5,6 +5,6 @@ import (
 	"github.com/firefly-crm/fireflycrm-bot-backend/types"
 )
 
-func (o orderBook) GetOrderByMessageId(ctx context.Context, messageId uint64) (order types.Order, err error) {
-	return o.storage.GetOrderByMessageId(ctx, messageId)
+func (o orderBook) GetOrderByMessageId(ctx context.Context, userId, messageId uint64) (order types.Order, err error) {
+	return o.storage.GetOrderByMessageId(ctx, userId, messageId)
 }

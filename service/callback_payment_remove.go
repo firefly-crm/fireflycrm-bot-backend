@@ -12,7 +12,7 @@ func (s Service) processPaymentRemove(ctx context.Context, callback *tp.Callback
 		return fmt.Errorf("failed to remove payment: %w", err)
 	}
 
-	err = s.updateOrderMessage(ctx, callback.MessageId, true)
+	err = s.updateOrderMessage(ctx, callback.UserId, callback.MessageId, true)
 	if err != nil {
 		return fmt.Errorf("failed to refresh order message: %w", err)
 	}

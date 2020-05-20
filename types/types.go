@@ -84,6 +84,7 @@ type (
 
 	Order struct {
 		Id              uint64        `db:"id"`
+		UserOrderId     uint64        `db:"user_order_id"`
 		HintMessageId   sql.NullInt64 `db:"hint_message_id"`
 		UserId          uint64        `db:"user_id"`
 		CustomerId      sql.NullInt64 `db:"customer_id"`
@@ -120,6 +121,7 @@ type (
 	OrderMessage struct {
 		Id          uint64      `db:"id"`
 		OrderId     uint64      `db:"order_id"`
+		UserId      uint64      `db:"user_id"`
 		DisplayMode DisplayMode `db:"display_mode"`
 	}
 
@@ -163,7 +165,7 @@ func (o Order) getCollapsedMessageString() string {
 	}
 
 	orderState := o.OrderState.MessageString()
-	result := fmt.Sprintf("*Заказ: #%d* от %s. %s.", o.Id, createdAt, orderState)
+	result := fmt.Sprintf("*Заказ: #%d* от %s. %s.", o.UserOrderId, createdAt, orderState)
 	if o.Amount > 0 {
 		result = fmt.Sprintf("%s %s.", result, payed)
 	}
@@ -172,7 +174,7 @@ func (o Order) getCollapsedMessageString() string {
 }
 
 func (o Order) getDeletedMessageString() string {
-	return fmt.Sprintf("*Заказ #%d.* _Удалён_.", o.Id)
+	return fmt.Sprintf("*Заказ #%d.* _Удалён_.", o.UserOrderId)
 }
 
 func (o Order) getFullMessageString(c *Customer) string {
@@ -189,7 +191,7 @@ func (o Order) getFullMessageString(c *Customer) string {
 		`*Заказ #%d* _(%s)_
 *Создан:* %s
 *Сумма:* %.2f₽
-`, o.Id, o.OrderState.MessageString(), createdAt, amount)
+`, o.UserOrderId, o.OrderState.MessageString(), createdAt, amount)
 
 	if o.Amount != 0 && o.PayedAmount != 0 {
 		if o.PayedAmount >= o.Amount {

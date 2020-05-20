@@ -9,23 +9,7 @@ import (
 	"github.com/firefly-crm/fireflycrm-bot-backend/types"
 )
 
-func (s Service) processPaymentRefund(ctx context.Context, callbackQuery *tg.CallbackQuery, paymentId uint64, amount uint32) error {
-	messageId := uint64(callbackQuery.Message.MessageID)
-
-	err := s.OrderBook.RefundPayment(ctx, paymentId, amount)
-	if err != nil {
-		return fmt.Errorf("failed to remove payment: %w", err)
-	}
-
-	err = s.updateOrderMessage(ctx, messageId, true)
-	if err != nil {
-		return fmt.Errorf("failed to refresh order message: %w", err)
-	}
-
-	return nil
-}
-
-func (s Service) processRefundCallback(ctx context.Context, order types.Order, messageId uint64, amount uint32) error {
+func (s Service) processRefundCallback(ctx context.Context, order types.Order, userId, messageId uint64, amount uint32) error {
 	log := logger.FromContext(ctx)
 
 	//TODO: Refund payment at ModulBank
@@ -54,7 +38,7 @@ func (s Service) processRefundCallback(ctx context.Context, order types.Order, m
 		return fmt.Errorf("failed to refund payment: %w", err)
 	}
 
-	err = s.updateOrderMessage(ctx, messageId, true)
+	err = s.updateOrderMessage(ctx, userId, messageId, true)
 	if err != nil {
 		return fmt.Errorf("failed to update order message: %w", err)
 	}
@@ -66,7 +50,7 @@ func (s Service) processPartialRefundCallback(ctx context.Context, callback *tp.
 	chatId := int64(callback.UserId)
 	messageId := callback.MessageId
 
-	order, err := s.OrderBook.GetOrderByMessageId(ctx, uint64(messageId))
+	order, err := s.OrderBook.GetOrderByMessageId(ctx, callback.UserId, messageId)
 	if err != nil {
 		return fmt.Errorf("failed to get order by message id: %w", err)
 	}

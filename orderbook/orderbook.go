@@ -8,13 +8,13 @@ import (
 
 type (
 	OrderBook interface {
-		CreateOrder(context context.Context, userId uint64) (uint64, error)
+		CreateOrder(context context.Context, userId uint64) (types.Order, error)
 		AddItem(context context.Context, orderId uint64) (uint64, error)
 		RemoveItem(context context.Context, receiptItem uint64) error
 		GeneratePaymentLink(context context.Context, paymentId uint64) error
-		GetOrderByMessageId(ctx context.Context, messageId uint64) (order types.Order, err error)
+		GetOrderByMessageId(ctx context.Context, userId, messageId uint64) (order types.Order, err error)
 		UpdateHintMessageForOrder(ctx context.Context, orderId, messageId uint64) error
-		UpdateMessageForOrder(ctx context.Context, orderId, messageId uint64) error
+		UpdateMessageForOrder(ctx context.Context, userId, orderId, messageId uint64) error
 		UpdateOrderEditState(ctx context.Context, orderId uint64, state types.EditState) error
 		GetActiveOrderForUser(ctx context.Context, userId uint64) (types.Order, error)
 		GetActiveOrderMessageIdForUser(ctx context.Context, userId uint64) (uint64, error)
@@ -31,8 +31,8 @@ type (
 		RemovePayment(ctx context.Context, paymentId uint64) error
 		RefundPayment(ctx context.Context, paymentId uint64, amount uint32) error
 		UpdatePaymentAmount(ctx context.Context, paymentId uint64, amount uint32) error
-		GetOrderMessage(ctx context.Context, messageId uint64) (types.OrderMessage, error)
-		UpdateOrderMessageDisplayMode(ctx context.Context, messageId uint64, mode types.DisplayMode) error
+		GetOrderMessage(ctx context.Context, userId, messageId uint64) (types.OrderMessage, error)
+		UpdateOrderMessageDisplayMode(ctx context.Context, userId, messageId uint64, mode types.DisplayMode) error
 		UpdateOrderState(ctx context.Context, id uint64, state types.OrderState) error
 		GetPayment(ctx context.Context, paymentId uint64) (types.Payment, error)
 		GetBankPayments(ctx context.Context) (payments []types.Payment, err error)
@@ -67,12 +67,12 @@ func MustNewOrderBook(storage storage.Storage) OrderBook {
 	return bm
 }
 
-func (ob orderBook) UpdateOrderMessageDisplayMode(ctx context.Context, messageId uint64, mode types.DisplayMode) error {
-	return ob.storage.UpdateOrderMessageDisplayMode(ctx, messageId, mode)
+func (ob orderBook) UpdateOrderMessageDisplayMode(ctx context.Context, userId, messageId uint64, mode types.DisplayMode) error {
+	return ob.storage.UpdateOrderMessageDisplayMode(ctx, userId, messageId, mode)
 }
 
-func (ob orderBook) GetOrderMessage(ctx context.Context, messageId uint64) (types.OrderMessage, error) {
-	return ob.storage.GetOrderMessage(ctx, messageId)
+func (ob orderBook) GetOrderMessage(ctx context.Context, userId, messageId uint64) (types.OrderMessage, error) {
+	return ob.storage.GetOrderMessage(ctx, userId, messageId)
 }
 
 func (ob orderBook) UpdateReceiptItemName(ctx context.Context, name string, userId, receiptItemId uint64) (err error) {

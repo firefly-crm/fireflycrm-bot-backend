@@ -23,10 +23,10 @@ func expandOrderInlineKeyboard() tg.InlineKeyboardMarkup {
 	return tg.NewInlineKeyboardMarkup(tg.NewInlineKeyboardRow(expandButton))
 }
 
-func startOrderInlineKeyboard(ctx context.Context, s Service, messageId uint64) (tg.InlineKeyboardMarkup, error) {
+func startOrderInlineKeyboard(ctx context.Context, s Service, userId, messageId uint64) (tg.InlineKeyboardMarkup, error) {
 	var markup tg.InlineKeyboardMarkup
 
-	order, err := s.OrderBook.GetOrderByMessageId(ctx, messageId)
+	order, err := s.OrderBook.GetOrderByMessageId(ctx, userId, messageId)
 	if err != nil {
 		return markup, fmt.Errorf("failed to get order for markup: %w", err)
 	}
@@ -58,11 +58,11 @@ func restoreDeletedOrderInlineKeyboard() tg.InlineKeyboardMarkup {
 	return tg.NewInlineKeyboardMarkup(tg.NewInlineKeyboardRow(restoreButton))
 }
 
-func orderActionsInlineKeyboard(ctx context.Context, s Service, messageId uint64) (tg.InlineKeyboardMarkup, error) {
+func orderActionsInlineKeyboard(ctx context.Context, s Service, userId, messageId uint64) (tg.InlineKeyboardMarkup, error) {
 	var markup tg.InlineKeyboardMarkup
 	var rows [][]tg.InlineKeyboardButton
 
-	order, err := s.OrderBook.GetOrderByMessageId(ctx, messageId)
+	order, err := s.OrderBook.GetOrderByMessageId(ctx, userId, messageId)
 	if err != nil {
 		return markup, fmt.Errorf("failed to get order for markup: %w", err)
 	}
@@ -112,10 +112,10 @@ func orderItemsInlineKeyboard() tg.InlineKeyboardMarkup {
 	return tg.NewInlineKeyboardMarkup(row1, row2)
 }
 
-func customerInlineKeyboard(ctx context.Context, s Service, messageId uint64) (tg.InlineKeyboardMarkup, error) {
+func customerInlineKeyboard(ctx context.Context, s Service, userId, messageId uint64) (tg.InlineKeyboardMarkup, error) {
 	var markup tg.InlineKeyboardMarkup
 
-	order, err := s.OrderBook.GetOrderByMessageId(ctx, messageId)
+	order, err := s.OrderBook.GetOrderByMessageId(ctx, userId, messageId)
 	if err != nil {
 		return markup, fmt.Errorf("failed to get order for markup: %w", err)
 	}
@@ -138,10 +138,10 @@ func customerInlineKeyboard(ctx context.Context, s Service, messageId uint64) (t
 	return markup, nil
 }
 
-func itemsListInlineKeyboard(ctx context.Context, s Service, messageId uint64, action string) (tg.InlineKeyboardMarkup, error) {
+func itemsListInlineKeyboard(ctx context.Context, s Service, userId, messageId uint64, action string) (tg.InlineKeyboardMarkup, error) {
 	var markup tg.InlineKeyboardMarkup
 
-	order, err := s.OrderBook.GetOrderByMessageId(ctx, messageId)
+	order, err := s.OrderBook.GetOrderByMessageId(ctx, userId, messageId)
 	if err != nil {
 		return markup, fmt.Errorf("failed to get items markup: %w", err)
 	}
@@ -157,10 +157,10 @@ func itemsListInlineKeyboard(ctx context.Context, s Service, messageId uint64, a
 	return tg.NewInlineKeyboardMarkup(markups...), nil
 }
 
-func paymentsListInlineKeyboard(ctx context.Context, s Service, messageId uint64, action string) (tg.InlineKeyboardMarkup, error) {
+func paymentsListInlineKeyboard(ctx context.Context, s Service, userId, messageId uint64, action string) (tg.InlineKeyboardMarkup, error) {
 	var markup tg.InlineKeyboardMarkup
 
-	order, err := s.OrderBook.GetOrderByMessageId(ctx, messageId)
+	order, err := s.OrderBook.GetOrderByMessageId(ctx, userId, messageId)
 	if err != nil {
 		return markup, fmt.Errorf("failed to get payments markup: %w", err)
 	}
@@ -207,10 +207,10 @@ func cancelInlineKeyboard() tg.InlineKeyboardMarkup {
 	return tg.NewInlineKeyboardMarkup(row1)
 }
 
-func paymentInlineKeyboard(ctx context.Context, s Service, messageId uint64) (tg.InlineKeyboardMarkup, error) {
+func paymentInlineKeyboard(ctx context.Context, s Service, userId, messageId uint64) (tg.InlineKeyboardMarkup, error) {
 	var markup tg.InlineKeyboardMarkup
 
-	order, err := s.OrderBook.GetOrderByMessageId(ctx, messageId)
+	order, err := s.OrderBook.GetOrderByMessageId(ctx, userId, messageId)
 	if err != nil {
 		return markup, fmt.Errorf("failed to get payments markup: %w", err)
 	}
@@ -260,10 +260,10 @@ func notifyReadInlineKeyboard() tg.InlineKeyboardMarkup {
 	return tg.NewInlineKeyboardMarkup(tg.NewInlineKeyboardRow(okButton))
 }
 
-func paymentAmountInlineKeyboard(ctx context.Context, s Service, messageId uint64) (tg.InlineKeyboardMarkup, error) {
+func paymentAmountInlineKeyboard(ctx context.Context, s Service, userId, messageId uint64) (tg.InlineKeyboardMarkup, error) {
 	var markup tg.InlineKeyboardMarkup
 
-	order, err := s.OrderBook.GetOrderByMessageId(ctx, messageId)
+	order, err := s.OrderBook.GetOrderByMessageId(ctx, userId, messageId)
 	if err != nil {
 		return markup, fmt.Errorf("failed to get payments markup: %w", err)
 	}

@@ -9,8 +9,8 @@ import (
 	"github.com/firefly-crm/fireflycrm-bot-backend/types"
 )
 
-func (s Service) processAddPaymentCallback(ctx context.Context, messageId uint64, method types.PaymentMethod) error {
-	order, err := s.OrderBook.GetOrderByMessageId(ctx, messageId)
+func (s Service) processAddPaymentCallback(ctx context.Context, userId, messageId uint64, method types.PaymentMethod) error {
+	order, err := s.OrderBook.GetOrderByMessageId(ctx, userId, messageId)
 	if err != nil {
 		return fmt.Errorf("failed to get order by message id: %w", err)
 	}
@@ -27,7 +27,7 @@ func (s Service) processPartialPaymentCallback(ctx context.Context, callback *tp
 	userId := int64(callback.UserId)
 	messageId := callback.MessageId
 
-	order, err := s.OrderBook.GetOrderByMessageId(ctx, messageId)
+	order, err := s.OrderBook.GetOrderByMessageId(ctx, uint64(userId), messageId)
 	if err != nil {
 		return fmt.Errorf("failed to get order by message id: %w", err)
 	}
@@ -51,10 +51,10 @@ func (s Service) processPartialPaymentCallback(ctx context.Context, callback *tp
 }
 
 //if amount is 0 then full payment
-func (s Service) processPaymentCallback(ctx context.Context, messageId uint64, amount uint32) error {
+func (s Service) processPaymentCallback(ctx context.Context, userId, messageId uint64, amount uint32) error {
 	log := logger.FromContext(ctx)
 
-	order, err := s.OrderBook.GetOrderByMessageId(ctx, messageId)
+	order, err := s.OrderBook.GetOrderByMessageId(ctx, userId, messageId)
 	if err != nil {
 		return fmt.Errorf("failed to get order: %w", err)
 	}
@@ -94,7 +94,7 @@ func (s Service) processPaymentCallback(ctx context.Context, messageId uint64, a
 		}
 	}
 
-	err = s.updateOrderMessage(ctx, messageId, true)
+	err = s.updateOrderMessage(ctx, userId, messageId, true)
 	if err != nil {
 		return fmt.Errorf("failed to update order message: %w", err)
 	}

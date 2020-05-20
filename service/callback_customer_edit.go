@@ -12,7 +12,7 @@ func (s Service) processCustomerEditInstagram(ctx context.Context, callback *tp.
 	userId := int64(callback.UserId)
 	messageId := callback.MessageId
 
-	order, err := s.OrderBook.GetOrderByMessageId(ctx, uint64(messageId))
+	order, err := s.OrderBook.GetOrderByMessageId(ctx, uint64(userId), messageId)
 	if err != nil {
 		return fmt.Errorf("failed to get order by message id: %w", err)
 	}
@@ -39,7 +39,7 @@ func (s Service) processCustomerEditEmail(ctx context.Context, callback *tp.Call
 	userId := int64(callback.UserId)
 	messageId := callback.MessageId
 
-	order, err := s.OrderBook.GetOrderByMessageId(ctx, messageId)
+	order, err := s.OrderBook.GetOrderByMessageId(ctx, uint64(userId), messageId)
 	if err != nil {
 		return fmt.Errorf("failed to get order by message id: %w", err)
 	}
@@ -66,7 +66,7 @@ func (s Service) processCustomerEditPhone(ctx context.Context, callback *tp.Call
 	userId := int64(callback.UserId)
 	messageId := callback.MessageId
 
-	order, err := s.OrderBook.GetOrderByMessageId(ctx, uint64(messageId))
+	order, err := s.OrderBook.GetOrderByMessageId(ctx, uint64(userId), uint64(messageId))
 	if err != nil {
 		return fmt.Errorf("failed to get order by message id: %w", err)
 	}

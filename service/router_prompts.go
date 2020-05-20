@@ -46,7 +46,7 @@ func (s Service) ProcessPromptEvent(ctx context.Context, promptEvent *tp.PromptE
 			}
 		}
 
-		err = s.updateOrderMessage(ctx, activeMessageId, flowCompleted)
+		err = s.updateOrderMessage(ctx, userId, activeMessageId, flowCompleted)
 		if err != nil {
 			log.Errorf("failed to update order message: %v", err)
 		}
@@ -141,7 +141,7 @@ func (s Service) ProcessPromptEvent(ctx context.Context, promptEvent *tp.PromptE
 			return fmt.Errorf("failed to parse amount: %w", err)
 		}
 
-		err = s.processPaymentCallback(ctx, activeMessageId, uint32(amount*100))
+		err = s.processPaymentCallback(ctx, userId, activeMessageId, uint32(amount*100))
 		if err != nil {
 			return fmt.Errorf("failed to proces payment callback")
 		}
@@ -155,7 +155,7 @@ func (s Service) ProcessPromptEvent(ctx context.Context, promptEvent *tp.PromptE
 			return fmt.Errorf("failed to parse amount: %w", err)
 		}
 
-		err = s.processRefundCallback(ctx, activeOrder, activeMessageId, uint32(amount*100))
+		err = s.processRefundCallback(ctx, activeOrder, userId, activeMessageId, uint32(amount*100))
 		if err != nil {
 			return fmt.Errorf("failed to proces refund callback")
 		}
