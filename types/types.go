@@ -165,7 +165,7 @@ func (o Order) getCollapsedMessageString() string {
 	}
 
 	orderState := o.OrderState.MessageString()
-	result := fmt.Sprintf("*Заказ: #%d* от %s. %s.", o.Id, createdAt, orderState)
+	result := fmt.Sprintf("*Заказ: #%d* от %s. %s.", o.UserOrderId, createdAt, orderState)
 	if o.Amount > 0 {
 		result = fmt.Sprintf("%s %s.", result, payed)
 	}

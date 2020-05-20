@@ -42,7 +42,7 @@ type (
 		SetActivePaymentId(ctx context.Context, orderId, paymentId uint64) error
 		GetActiveOrderMessageIdForUser(ctx context.Context, userId uint64) (uint64, error)
 		GetOrderMessage(ctx context.Context, userId, messageId uint64) (types.OrderMessage, error)
-		UpdateOrderMessageDisplayMode(ctx context.Context, userId, messageId, uint64, mode types.DisplayMode) error
+		UpdateOrderMessageDisplayMode(ctx context.Context, userId, messageId uint64, mode types.DisplayMode) error
 		UpdateCustomerInstagram(ctx context.Context, instagram string, orderId uint64) (uint64, error)
 		UpdateCustomerPhone(ctx context.Context, phone string, orderId uint64) (uint64, error)
 		GetUser(ctx context.Context, userId uint64) (user types.User, err error)
@@ -236,7 +236,7 @@ func NewStorage(db *sqlx.DB) Storage {
 	return storage{db}
 }
 
-func (s storage) UpdateOrderMessageDisplayMode(ctx context.Context, messageId, userId uint64, mode types.DisplayMode) error {
+func (s storage) UpdateOrderMessageDisplayMode(ctx context.Context, userId, messageId uint64, mode types.DisplayMode) error {
 	const updateQuery = `UPDATE order_messages SET display_mode=$3 WHERE user_id=$1 AND id=$2`
 	_, err := s.db.Exec(updateQuery, userId, messageId, mode)
 	if err != nil {
