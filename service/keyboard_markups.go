@@ -39,12 +39,12 @@ func startOrderInlineKeyboard(ctx context.Context, s Service, userId, messageId 
 	if order.OrderState != types.OrderStateDone {
 		var row1 []tg.InlineKeyboardButton
 		if !order.CustomerId.Valid {
-			row1 = []tg.InlineKeyboardButton{itemsButton, customerButton}
+			row1 = []tg.InlineKeyboardButton{itemsButton, customerButton, actionsButton}
 		} else {
-			row1 = []tg.InlineKeyboardButton{itemsButton, customerButton, paymentButton}
+			row1 = []tg.InlineKeyboardButton{itemsButton, customerButton, paymentButton, actionsButton}
 		}
-		row2 := []tg.InlineKeyboardButton{actionsButton}
-		markup = tg.NewInlineKeyboardMarkup(row1, row2)
+		//row2 := []tg.InlineKeyboardButton{actionsButton}
+		markup = tg.NewInlineKeyboardMarkup(row1)
 	} else {
 		row1 := []tg.InlineKeyboardButton{customerButton, paymentButton, actionsButton}
 		markup = tg.NewInlineKeyboardMarkup(row1)
