@@ -31,10 +31,10 @@ func startOrderInlineKeyboard(ctx context.Context, s Service, userId, messageId 
 		return markup, fmt.Errorf("failed to get order for markup: %w", err)
 	}
 
-	customerButton := tg.NewInlineKeyboardButtonData(kbCustomer, kbDataCustomer)
-	paymentButton := tg.NewInlineKeyboardButtonData(kbPayment, kbDataPayment)
-	actionsButton := tg.NewInlineKeyboardButtonData(kbOrderActions, kbDataOrderActions)
-	itemsButton := tg.NewInlineKeyboardButtonData(kbItems, kbDataItems)
+	customerButton := tg.NewInlineKeyboardButtonData(kbCustomerPictogram, kbDataCustomer)
+	paymentButton := tg.NewInlineKeyboardButtonData(kbPaymentPictogram, kbDataPayment)
+	actionsButton := tg.NewInlineKeyboardButtonData(kbOrderActionsPictogram, kbDataOrderActions)
+	itemsButton := tg.NewInlineKeyboardButtonData(kbItemsPictogram, kbDataItems)
 
 	if order.OrderState != types.OrderStateDone {
 		var row1 []tg.InlineKeyboardButton
