@@ -238,14 +238,5 @@ func parsePhone(text string) (string, error) {
 		numericStr = "7" + numericStr[1:]
 	}
 
-	digits := strings.Split(numericStr, "")
-
-	phone := fmt.Sprintf("+%s(%s)%s-%s-%s",
-		digits[0],
-		strings.Join(digits[1:4], ""),
-		strings.Join(digits[4:7], ""),
-		strings.Join(digits[7:9], ""),
-		strings.Join(digits[9:], ""))
-
-	return phone, nil
+	return numericStr, nil
 }
