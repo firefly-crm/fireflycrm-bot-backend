@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	tg "github.com/DarthRamone/telegram-bot-api"
+	"github.com/firefly-crm/common/bot"
 	tp "github.com/firefly-crm/common/messages/telegram"
 	"github.com/firefly-crm/fireflycrm-bot-backend/types"
 )
@@ -13,7 +14,7 @@ func (s Service) processItemEditQty(ctx context.Context, callback *tp.CallbackEv
 	if err != nil {
 		return fmt.Errorf("failed to get order by message id: %w", err)
 	}
-	hintMessage := tg.NewMessage(int64(callback.UserId), replyEnterItemQty)
+	hintMessage := tg.NewMessage(int64(callback.UserId), bot.ReplyEnterItemQty)
 	hint, err := s.Bot.Send(hintMessage)
 	if err != nil {
 		return fmt.Errorf("failed to send message: %w", err)
@@ -42,7 +43,7 @@ func (s Service) processItemEditPrice(ctx context.Context, callback *tp.Callback
 	if err != nil {
 		return fmt.Errorf("failed to get order by message id: %w", err)
 	}
-	hintMessage := tg.NewMessage(int64(callback.UserId), replyEnterItemPrice)
+	hintMessage := tg.NewMessage(int64(callback.UserId), bot.ReplyEnterItemPrice)
 	hint, err := s.Bot.Send(hintMessage)
 	if err != nil {
 		return fmt.Errorf("failed to send message: %w", err)
@@ -71,7 +72,7 @@ func (s Service) processItemEditName(ctx context.Context, callback *tp.CallbackE
 	if err != nil {
 		return fmt.Errorf("failed to get order by message id: %w", err)
 	}
-	hintMessage := tg.NewMessage(int64(callback.UserId), replyEnterItemName)
+	hintMessage := tg.NewMessage(int64(callback.UserId), bot.ReplyEnterItemName)
 	hint, err := s.Bot.Send(hintMessage)
 	if err != nil {
 		return fmt.Errorf("failed to send message: %w", err)

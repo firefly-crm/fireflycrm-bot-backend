@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	tg "github.com/DarthRamone/telegram-bot-api"
+	"github.com/firefly-crm/common/bot"
 	tp "github.com/firefly-crm/common/messages/telegram"
 	"github.com/firefly-crm/fireflycrm-bot-backend/types"
 )
@@ -17,7 +18,7 @@ func (s Service) processAddKnownItem(ctx context.Context, callback *tp.CallbackE
 		return fmt.Errorf("failed to get order by message id: %w", err)
 	}
 
-	hintMessage := tg.NewMessage(userId, replyEnterItemPrice)
+	hintMessage := tg.NewMessage(userId, bot.ReplyEnterItemPrice)
 	hint, err := s.Bot.Send(hintMessage)
 	if err != nil {
 		return fmt.Errorf("failed to send message: %w", err)
@@ -31,9 +32,9 @@ func (s Service) processAddKnownItem(ctx context.Context, callback *tp.CallbackE
 
 	name := "Unknown item"
 	switch data {
-	case kbDataDelivery:
+	case bot.KbDataDelivery:
 		name = "Доставка"
-	case kbDataLingerieSet:
+	case bot.KbDataLingerieSet:
 		name = "Комплект нижнего белья"
 	}
 
@@ -63,7 +64,7 @@ func (s Service) processAddItemCallack(ctx context.Context, callback *tp.Callbac
 	if err != nil {
 		return fmt.Errorf("failed to get order by message id: %w", err)
 	}
-	hintMessage := tg.NewMessage(userId, replyEnterItemName)
+	hintMessage := tg.NewMessage(userId, bot.ReplyEnterItemName)
 	hint, err := s.Bot.Send(hintMessage)
 	if err != nil {
 		return fmt.Errorf("failed to send message: %w", err)

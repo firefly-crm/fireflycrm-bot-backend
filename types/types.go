@@ -25,6 +25,7 @@ const (
 	EditStateWaitingPaymentAmount
 	EditStateWaitingRefundAmount
 	EditStateWaitingOrderDueDate
+	EditStateWaitingOrderDescription
 )
 
 const (
@@ -144,7 +145,7 @@ func (o Order) MessageString(c *Customer, mode DisplayMode) string {
 	case DisplayModeFull:
 		return o.getFullMessageString(c)
 	case DisplayModeCollapsed:
-		return o.getCollapsedMessageString()
+		return o.getCollapsedMessageString(c)
 	case DisplayModeDeleted:
 		return o.getDeletedMessageString()
 	}
@@ -152,7 +153,7 @@ func (o Order) MessageString(c *Customer, mode DisplayMode) string {
 	return ""
 }
 
-func (o Order) getCollapsedMessageString() string {
+func (o Order) getCollapsedMessageString(c *Customer) string {
 	loc, err := time.LoadLocation("Europe/Moscow")
 	if err != nil {
 		loc = time.Now().Location()
@@ -166,11 +167,21 @@ func (o Order) getCollapsedMessageString() string {
 		payed = fmt.Sprintf("Оплачено %d₽ из %d₽", o.PayedAmount/100, o.Amount/100)
 	}
 
-	orderState := o.OrderState.MessageString()
-	result := fmt.Sprintf("*Заказ: #%d* от %s. %s.", o.UserOrderId, createdAt, orderState)
-	if o.Amount > 0 {
-		result = fmt.Sprintf("%s %s.", result, payed)
+	result := fmt.Sprintf(`*Заказ: #%d* от %s.\n`, o.UserOrderId, createdAt)
+
+	if c != nil {
+		if c.Instagram.Valid {
+			result += fmt.Sprintf("*Клиент:* [@%[1]s](https://instagram.com/%[1]s)\n", c.Instagram.String)
+		} else if c.Phone.Valid {
+			result += fmt.Sprintf("*Клиент:* [%[1]s](https://wa.me/%[1]s)\n", formatPhone(c.Phone.String))
+		}
 	}
+
+	if o.Description != "" {
+		result += fmt.Sprintf("_%s_\n", o.Description)
+	}
+
+	result += fmt.Sprintf("*Срок сдачи:* %s; %s; %s", payed, o.OrderState.MessageString())
 
 	return result
 }
@@ -224,6 +235,10 @@ func (o Order) getFullMessageString(c *Customer) string {
 		}
 	}
 
+	if o.Description != "" {
+		result += fmt.Sprintf("\n%s\n", o.Description)
+	}
+
 	result += "\n*Позиции*\n"
 
 	if o.ReceiptItems != nil {
@@ -243,12 +258,10 @@ func (o Order) getFullMessageString(c *Customer) string {
 		if c.Email.Valid {
 			email := strings.Replace(c.Email.String, "_", "\\_", -1)
 			result += fmt.Sprintf("\n*E-Mail:* %s", email)
-		} else {
-			result += "\n*E-Mail:* ‼️ Данные не заполнены"
 		}
 
 		if c.Phone.Valid {
-			result += fmt.Sprintf("\n*Телефон:* %s", c.Phone.String)
+			result += fmt.Sprintf("\n*Телефон:* [%[1]s](https://wa.me/%[1]s)", formatPhone(c.Phone.String))
 		}
 
 		if c.Instagram.Valid {
@@ -339,6 +352,19 @@ func (s OrderState) MessageString() string {
 		return "В работе"
 	}
 	return "Статус неизвестен"
+}
+
+func formatPhone(phone string) string {
+	digits := strings.Split(phone, "")
+
+	formatted := fmt.Sprintf("+%s(%s)%s-%s-%s",
+		digits[0],
+		strings.Join(digits[1:4], ""),
+		strings.Join(digits[4:7], ""),
+		strings.Join(digits[7:9], ""),
+		strings.Join(digits[9:], ""))
+
+	return formatted
 }
 
 type PaymentsByCreatedAt []Payment

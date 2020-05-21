@@ -189,6 +189,11 @@ func (s Service) ProcessPromptEvent(ctx context.Context, promptEvent *tp.PromptE
 		if err != nil {
 			return fmt.Errorf("failed to update order due date: %w", err)
 		}
+	case types.EditStateWaitingOrderDescription:
+		err = s.Storage.UpdateOrderDescription(ctx, userId, activeOrder.Id, text)
+		if err != nil {
+			return fmt.Errorf("failed to update order description: %w", err)
+		}
 	}
 
 	return nil
@@ -233,14 +238,5 @@ func parsePhone(text string) (string, error) {
 		numericStr = "7" + numericStr[1:]
 	}
 
-	digits := strings.Split(numericStr, "")
-
-	phone := fmt.Sprintf("+%s(%s)%s-%s-%s",
-		digits[0],
-		strings.Join(digits[1:4], ""),
-		strings.Join(digits[4:7], ""),
-		strings.Join(digits[7:9], ""),
-		strings.Join(digits[9:], ""))
-
-	return phone, nil
+	return numericStr, nil
 }
