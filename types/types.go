@@ -225,6 +225,10 @@ func (o Order) getFullMessageString(c *Customer) string {
 		}
 	}
 
+	if o.Description != "" {
+		result += fmt.Sprintf("\n%s\n", o.Description)
+	}
+
 	result += "\n*Позиции*\n"
 
 	if o.ReceiptItems != nil {
@@ -244,8 +248,6 @@ func (o Order) getFullMessageString(c *Customer) string {
 		if c.Email.Valid {
 			email := strings.Replace(c.Email.String, "_", "\\_", -1)
 			result += fmt.Sprintf("\n*E-Mail:* %s", email)
-		} else {
-			result += "\n*E-Mail:* ‼️ Данные не заполнены"
 		}
 
 		if c.Phone.Valid {
