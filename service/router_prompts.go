@@ -162,7 +162,7 @@ func (s Service) ProcessPromptEvent(ctx context.Context, promptEvent *tp.PromptE
 		}
 	case types.EditStateWaitingCustomerInstagram:
 		text = strings.Trim(text, "@")
-
+		text = parseInstagram(text)
 		_, err = s.OrderBook.UpdateCustomerInstagram(ctx, text, activeOrder.Id)
 		if err != nil {
 			return fmt.Errorf("failed to update customer email: %w", err)
@@ -192,6 +192,17 @@ func (s Service) ProcessPromptEvent(ctx context.Context, promptEvent *tp.PromptE
 	}
 
 	return nil
+}
+
+func parseInstagram(text string) string {
+	if strings.Contains(text, "instagram.com") {
+		text := strings.TrimPrefix(text, "https://")
+		subpaths := strings.Split(text, "/")
+		elems := strings.Split(subpaths[1], "?")
+		return elems[0]
+	}
+
+	return text
 }
 
 func parseAmount(text string) (int, error) {
