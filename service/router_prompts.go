@@ -189,6 +189,11 @@ func (s Service) ProcessPromptEvent(ctx context.Context, promptEvent *tp.PromptE
 		if err != nil {
 			return fmt.Errorf("failed to update order due date: %w", err)
 		}
+	case types.EditStateWaitingOrderDescription:
+		err = s.Storage.UpdateOrderDescription(ctx, userId, activeOrder.Id, text)
+		if err != nil {
+			return fmt.Errorf("failed to update order description: %w", err)
+		}
 	}
 
 	return nil

@@ -51,6 +51,7 @@ type (
 		SetPaymentExpired(ctx context.Context, paymentId uint64) error
 		GetMessagesForOrder(ctx context.Context, userId, orderId uint64) ([]types.OrderMessage, error)
 		UpdateOrderDueDate(ctx context.Context, userId, orderId uint64, date time.Time) error
+		UpdateOrderDescription(ctx context.Context, userId, orderId uint64, description string) error
 	}
 
 	storage struct {
@@ -75,7 +76,16 @@ func (s storage) UpdateOrderDueDate(ctx context.Context, userId, orderId uint64,
 	const updateQuery = `UPDATE orders SET due_date=$3 WHERE user_id=$2 AND id=$1`
 	_, err := s.db.Exec(updateQuery, orderId, userId, date)
 	if err != nil {
-		return fmt.Errorf("failed to get messages: %w", err)
+		return fmt.Errorf("failed to update order due date: %w", err)
+	}
+	return nil
+}
+
+func (s storage) UpdateOrderDescription(ctx context.Context, userId, orderId uint64, description string) error {
+	const updateQuery = `UPDATE orders SET description=$3 WHERE user_id=$2 AND id=$1`
+	_, err := s.db.Exec(updateQuery, orderId, userId, description)
+	if err != nil {
+		return fmt.Errorf("failed to update order description: %w", err)
 	}
 	return nil
 }

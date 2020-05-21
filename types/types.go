@@ -25,6 +25,7 @@ const (
 	EditStateWaitingPaymentAmount
 	EditStateWaitingRefundAmount
 	EditStateWaitingOrderDueDate
+	EditStateWaitingOrderDescription
 )
 
 const (

@@ -67,12 +67,17 @@ func orderEditEntriesInlineKeyboard(ctx context.Context, s Service, userId, mess
 		return markup, fmt.Errorf("failed to get order for markup: %w", err)
 	}
 
-	data := fmt.Sprintf("%s_%d", bot.KbDataOrderEditDate, order.Id)
+	dueDataData := fmt.Sprintf("%s_%d", bot.KbDataOrderEditDate, order.Id)
+	descriptionData := fmt.Sprintf("%s_%d", bot.KbDataOrderEditDescription, order.Id)
 
-	editDateButton := tg.NewInlineKeyboardButtonData(bot.KbOrderEditDueDate, data)
+	editDateButton := tg.NewInlineKeyboardButtonData(bot.KbOrderEditDueDate, dueDataData)
+	editDescription := tg.NewInlineKeyboardButtonData(bot.KbOrderEditDescription, descriptionData)
 	backButton := tg.NewInlineKeyboardButtonData(bot.KbBack, bot.KbDataBack)
 
-	markup = tg.NewInlineKeyboardMarkup(tg.NewInlineKeyboardRow(editDateButton), tg.NewInlineKeyboardRow(backButton))
+	markup = tg.NewInlineKeyboardMarkup(
+		tg.NewInlineKeyboardRow(editDateButton),
+		tg.NewInlineKeyboardRow(editDescription),
+		tg.NewInlineKeyboardRow(backButton))
 	return markup, nil
 }
 
