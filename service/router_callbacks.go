@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	tg "github.com/DarthRamone/telegram-bot-api"
+	. "github.com/firefly-crm/common/bot"
 	"github.com/firefly-crm/common/logger"
 	tp "github.com/firefly-crm/common/messages/telegram"
 	"github.com/firefly-crm/fireflycrm-bot-backend/types"
@@ -210,13 +211,13 @@ func (s Service) ProcessCallbackEvent(ctx context.Context, callbackEvent *tp.Cal
 			return fmt.Errorf("failed to get order inline kb: %w", err)
 		}
 	case tp.CallbackType_CUSTOM_ITEM_DELIVERY:
-		err := s.processAddKnownItem(ctx, callbackEvent, kbDataDelivery)
+		err := s.processAddKnownItem(ctx, callbackEvent, KbDataDelivery)
 		if err != nil {
 			return fmt.Errorf("failed to process add item callbackEvent: %w", err)
 		}
 		markup = cancelInlineKeyboard()
 	case tp.CallbackType_CUSTOM_ITEM_LINGERIE_SET:
-		err := s.processAddKnownItem(ctx, callbackEvent, kbDataLingerieSet)
+		err := s.processAddKnownItem(ctx, callbackEvent, KbDataLingerieSet)
 		if err != nil {
 			return fmt.Errorf("failed to process add item callbackEvent: %w", err)
 		}

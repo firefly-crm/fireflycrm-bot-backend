@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	tg "github.com/DarthRamone/telegram-bot-api"
+	"github.com/firefly-crm/common/bot"
 	tp "github.com/firefly-crm/common/messages/telegram"
 )
 
@@ -28,7 +29,7 @@ func (s Service) registerMerchant(ctx context.Context, commandEvent *tp.CommandE
 		return fmt.Errorf("failed to delete command message: %w", err)
 	}
 
-	msg := tg.NewMessage(int64(userId), replyMerchantSuccessfulRegistered)
+	msg := tg.NewMessage(int64(userId), bot.ReplyMerchantSuccessfulRegistered)
 	msg.ReplyMarkup = merchantStandByKeyboardMarkup()
 	msg.ParseMode = "markdown"
 

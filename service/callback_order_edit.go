@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	tg "github.com/DarthRamone/telegram-bot-api"
+	"github.com/firefly-crm/common/bot"
 	tp "github.com/firefly-crm/common/messages/telegram"
 	"github.com/firefly-crm/fireflycrm-bot-backend/types"
 )
@@ -13,7 +14,7 @@ func (s Service) processOrderEditDueDate(ctx context.Context, callback *tp.Callb
 	if err != nil {
 		return fmt.Errorf("failed to get order by message id: %w", err)
 	}
-	hintMessage := tg.NewMessage(int64(callback.UserId), replyEnterOrderDueDate)
+	hintMessage := tg.NewMessage(int64(callback.UserId), bot.ReplyEnterOrderDueDate)
 	hint, err := s.Bot.Send(hintMessage)
 	if err != nil {
 		return fmt.Errorf("failed to send message: %w", err)

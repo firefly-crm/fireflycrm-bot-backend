@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	tg "github.com/DarthRamone/telegram-bot-api"
+	"github.com/firefly-crm/common/bot"
 	"github.com/firefly-crm/fireflycrm-bot-backend/types"
 )
 
@@ -19,7 +20,7 @@ func (s Service) setWaitingForPrice(ctx context.Context, order types.Order) erro
 
 	hintMessageId := int(order.HintMessageId.Int64)
 
-	hintMessage := tg.NewEditMessageText(int64(order.UserId), hintMessageId, replyEnterItemPrice)
+	hintMessage := tg.NewEditMessageText(int64(order.UserId), hintMessageId, bot.ReplyEnterItemPrice)
 	_, err = s.Bot.Send(hintMessage)
 	if err != nil {
 		return fmt.Errorf("failed to send message: %w", err)
