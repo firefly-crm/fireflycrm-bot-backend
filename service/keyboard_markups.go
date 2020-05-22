@@ -19,17 +19,22 @@ func merchantStandByKeyboardMarkup() tg.ReplyKeyboardMarkup {
 	return tg.NewReplyKeyboard(rows...)
 }
 
-func expandOrderInlineKeyboard() tg.InlineKeyboardMarkup {
-	expandButton := tg.NewInlineKeyboardButtonData(bot.KbOrderExpand, bot.KbDataOrderExpand)
-	return tg.NewInlineKeyboardMarkup(tg.NewInlineKeyboardRow(expandButton))
-}
-
 func startOrderInlineKeyboard(ctx context.Context, s Service, userId, messageId uint64) (tg.InlineKeyboardMarkup, error) {
 	var markup tg.InlineKeyboardMarkup
 
 	order, err := s.OrderBook.GetOrderByMessageId(ctx, userId, messageId)
 	if err != nil {
 		return markup, fmt.Errorf("failed to get order for markup: %w", err)
+	}
+
+	message, err := s.Storage.GetOrderMessage(ctx, userId, messageId)
+	if err != nil {
+		return markup, fmt.Errorf("failed to get order message: %w", err)
+	}
+
+	expandCollapseButton := tg.NewInlineKeyboardButtonData(bot.KbOrderExpandPictogram, bot.KbDataOrderExpand)
+	if message.DisplayMode == types.DisplayModeFull {
+		expandCollapseButton = tg.NewInlineKeyboardButtonData(bot.KbOrderCollapsePictogram, bot.KbDataOrderCollapse)
 	}
 
 	customerButton := tg.NewInlineKeyboardButtonData(bot.KbCustomerPictogram, bot.KbDataCustomer)
@@ -40,14 +45,13 @@ func startOrderInlineKeyboard(ctx context.Context, s Service, userId, messageId 
 	if order.OrderState != types.OrderStateDone {
 		var row1 []tg.InlineKeyboardButton
 		if !order.CustomerId.Valid {
-			row1 = []tg.InlineKeyboardButton{itemsButton, customerButton, actionsButton}
+			row1 = []tg.InlineKeyboardButton{itemsButton, customerButton, actionsButton, expandCollapseButton}
 		} else {
-			row1 = []tg.InlineKeyboardButton{itemsButton, customerButton, paymentButton, actionsButton}
+			row1 = []tg.InlineKeyboardButton{itemsButton, customerButton, paymentButton, actionsButton, expandCollapseButton}
 		}
-		//row2 := []tg.InlineKeyboardButton{actionsButton}
 		markup = tg.NewInlineKeyboardMarkup(row1)
 	} else {
-		row1 := []tg.InlineKeyboardButton{customerButton, paymentButton, actionsButton}
+		row1 := []tg.InlineKeyboardButton{customerButton, paymentButton, actionsButton, expandCollapseButton}
 		markup = tg.NewInlineKeyboardMarkup(row1)
 	}
 
@@ -92,7 +96,6 @@ func orderActionsInlineKeyboard(ctx context.Context, s Service, userId, messageI
 
 	doneButton := tg.NewInlineKeyboardButtonData(bot.KbOrderDone, bot.KbDataOrderDone)
 	inProgressButton := tg.NewInlineKeyboardButtonData(bot.KbOrderInProgress, bot.KbDataOrderInProgress)
-	collapseButton := tg.NewInlineKeyboardButtonData(bot.KbOrderCollapse, bot.KbDataOrderCollapse)
 	restartButton := tg.NewInlineKeyboardButtonData(bot.KbOrderRestart, bot.KbDataOrderRestart)
 	editButton := tg.NewInlineKeyboardButtonData(bot.KbOrderEdit, bot.KbDataOrderEdit)
 	deleteButton := tg.NewInlineKeyboardButtonData(bot.KbOrderDelete, bot.KbDataOrderDelete)
@@ -111,8 +114,6 @@ func orderActionsInlineKeyboard(ctx context.Context, s Service, userId, messageI
 			rows = append(rows, []tg.InlineKeyboardButton{doneButton})
 		}
 	}
-
-	rows = append(rows, []tg.InlineKeyboardButton{collapseButton})
 
 	if order.OrderState == types.OrderStateDone {
 		rows = append(rows, []tg.InlineKeyboardButton{restartButton})
