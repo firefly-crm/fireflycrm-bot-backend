@@ -167,7 +167,7 @@ func (o Order) getCollapsedMessageString(c *Customer) string {
 		payed = fmt.Sprintf("Оплачено %d₽ из %d₽", o.PayedAmount/100, o.Amount/100)
 	}
 
-	result := fmt.Sprintf(`<b>Заказ: #%d</b> от %s.\n`, o.UserOrderId, createdAt)
+	result := fmt.Sprintf("<b>Заказ: #%d</b> от %s.\n", o.UserOrderId, createdAt)
 
 	if c != nil {
 		if c.Instagram.Valid {
@@ -181,7 +181,12 @@ func (o Order) getCollapsedMessageString(c *Customer) string {
 		result += fmt.Sprintf("<i>%s</i>\n", o.Description)
 	}
 
-	result += fmt.Sprintf("<b>Срок сдачи:</b> %s; %s; %s", payed, o.OrderState.MessageString())
+	dueDate := "N/A"
+	if o.DueDate.Valid {
+		dueDate = o.DueDate.Time.In(loc).Format("01.02.2006")
+	}
+
+	result += fmt.Sprintf("<b>Срок сдачи:</b> %s; %s; %s", dueDate, payed, o.OrderState.MessageString())
 
 	return result
 }
