@@ -200,7 +200,10 @@ func (s Service) ProcessCallbackEvent(ctx context.Context, callbackEvent *tp.Cal
 		if err != nil {
 			return fmt.Errorf("failed to process order collapse callbackEvent: %w", err)
 		}
-		markup = expandOrderInlineKeyboard()
+		markup, err = startOrderInlineKeyboard(ctx, s, userId, messageId)
+		if err != nil {
+			return fmt.Errorf("failed to get start order inline keyboard: %w", err)
+		}
 	case tp.CallbackType_ORDER_EXPAND:
 		err := s.processOrderDisplayModeCallback(ctx, userId, messageId, types.DisplayModeFull)
 		if err != nil {

@@ -177,7 +177,7 @@ func (o Order) getCollapsedMessageString(c *Customer) string {
 	}
 
 	if o.Description != "" {
-		result += fmt.Sprintf("<i>%s</i>\n", o.Description)
+		result += fmt.Sprintf("✨ <i>%s</i>\n", o.Description)
 	}
 
 	dueDate := "N/A"
@@ -240,7 +240,7 @@ func (o Order) getFullMessageString(c *Customer) string {
 	}
 
 	if o.Description != "" {
-		result += fmt.Sprintf("\n<i>%s</i>\n", o.Description)
+		result += fmt.Sprintf("\n✨ <i>%s</i>\n", o.Description)
 	}
 
 	result += "\n<b>Позиции</b>\n"
