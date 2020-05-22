@@ -167,13 +167,13 @@ func (o Order) getCollapsedMessageString(c *Customer) string {
 		payed = fmt.Sprintf("Оплачено %d₽ из %d₽", o.PayedAmount/100, o.Amount/100)
 	}
 
-	result := fmt.Sprintf("<b>Заказ: #%d</b> от %s.\n", o.UserOrderId, createdAt)
+	result := fmt.Sprintf("<b>Заказ: #%d</b> <i>(%s)</i>\n", o.UserOrderId, o.OrderState.MessageString())
 
 	if c != nil {
 		if c.Instagram.Valid {
 			result += fmt.Sprintf("<b>Клиент:</b> <a href=\"https://instagram.com/%[1]s\">@%[1]s</a>\n", c.Instagram.String)
 		} else if c.Phone.Valid {
-			result += fmt.Sprintf("<b>Клиент:</b> <a href=\"whatsapp://%[1]s\">@%[1]s</a>\n", formatPhone(c.Phone.String))
+			result += fmt.Sprintf("<b>Клиент:</b> <a href=\"https://wa.me/%s\">%s</a>\n", c.Phone.String, formatPhone(c.Phone.String))
 		}
 	}
 
@@ -186,7 +186,7 @@ func (o Order) getCollapsedMessageString(c *Customer) string {
 		dueDate = o.DueDate.Time.In(loc).Format("01.02.2006")
 	}
 
-	result += fmt.Sprintf("<b>Срок сдачи:</b> %s; %s; %s", dueDate, payed, o.OrderState.MessageString())
+	result += fmt.Sprintf("<b>Срок сдачи:</b> %s; %s", dueDate, payed)
 
 	return result
 }
@@ -265,7 +265,7 @@ func (o Order) getFullMessageString(c *Customer) string {
 		}
 
 		if c.Phone.Valid {
-			result += fmt.Sprintf("\n<b>Телефон:</b> <a href=\"whatsapp://%[1]s\">%[1]s</a>", formatPhone(c.Phone.String))
+			result += fmt.Sprintf("\n<b>Телефон:</b> <a href=\"https://wa.me/%s\">%s</a>", c.Phone.String, formatPhone(c.Phone.String))
 		}
 
 		if c.Instagram.Valid {
