@@ -158,7 +158,6 @@ func (o Order) getCollapsedMessageString(c *Customer) string {
 	if err != nil {
 		loc = time.Now().Location()
 	}
-	createdAt := o.CreatedAt.In(loc).Format("01.02.2006")
 
 	var payed string
 	if o.Amount <= o.PayedAmount {
