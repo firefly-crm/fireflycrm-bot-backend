@@ -158,7 +158,6 @@ func (o Order) getCollapsedMessageString(c *Customer) string {
 	if err != nil {
 		loc = time.Now().Location()
 	}
-	createdAt := o.CreatedAt.In(loc).Format("01.02.2006")
 
 	var payed string
 	if o.Amount <= o.PayedAmount {
@@ -167,27 +166,32 @@ func (o Order) getCollapsedMessageString(c *Customer) string {
 		payed = fmt.Sprintf("Оплачено %d₽ из %d₽", o.PayedAmount/100, o.Amount/100)
 	}
 
-	result := fmt.Sprintf(`*Заказ: #%d* от %s.\n`, o.UserOrderId, createdAt)
+	result := fmt.Sprintf("<b>Заказ: #%d</b> <i>(%s)</i>\n", o.UserOrderId, o.OrderState.MessageString())
 
 	if c != nil {
 		if c.Instagram.Valid {
-			result += fmt.Sprintf("*Клиент:* [@%[1]s](https://instagram.com/%[1]s)\n", c.Instagram.String)
+			result += fmt.Sprintf("<b>Клиент:</b> <a href=\"https://instagram.com/%[1]s\">@%[1]s</a>\n", c.Instagram.String)
 		} else if c.Phone.Valid {
-			result += fmt.Sprintf("*Клиент:* [%[1]s](https://wa.me/%[1]s)\n", formatPhone(c.Phone.String))
+			result += fmt.Sprintf("<b>Клиент:</b> <a href=\"https://wa.me/%s\">%s</a>\n", c.Phone.String, formatPhone(c.Phone.String))
 		}
 	}
 
 	if o.Description != "" {
-		result += fmt.Sprintf("_%s_\n", o.Description)
+		result += fmt.Sprintf("<i>%s</i>\n", o.Description)
 	}
 
-	result += fmt.Sprintf("*Срок сдачи:* %s; %s; %s", payed, o.OrderState.MessageString())
+	dueDate := "N/A"
+	if o.DueDate.Valid {
+		dueDate = o.DueDate.Time.In(loc).Format("01.02.2006")
+	}
+
+	result += fmt.Sprintf("<b>Срок сдачи:</b> %s; %s", dueDate, payed)
 
 	return result
 }
 
 func (o Order) getDeletedMessageString() string {
-	return fmt.Sprintf("*Заказ #%d.* _Удалён_.", o.UserOrderId)
+	return fmt.Sprintf("<b>Заказ #%d.</b> <i>Удалён</i>.", o.UserOrderId)
 }
 
 func (o Order) getFullMessageString(c *Customer) string {
@@ -201,71 +205,70 @@ func (o Order) getFullMessageString(c *Customer) string {
 	amount := float32(o.Amount) / 100.0
 
 	result := fmt.Sprintf(
-		`*Заказ #%d* _(%s)_
-*Создан:* %s`, o.UserOrderId, o.OrderState.MessageString(), createdAt)
+		`<b>Заказ #%d</b> <i>(%s)</i>
+<b>Создан:</b> %s`, o.UserOrderId, o.OrderState.MessageString(), createdAt)
 
 	if o.DueDate.Valid {
 		dueDate := o.DueDate.Time.In(loc).Format("02.01.2006")
 
 		result += fmt.Sprintf(`
-*Срок сдачи:* %s`, dueDate)
+<b>Срок сдачи:</b> %s`, dueDate)
 	}
 
 	result += fmt.Sprintf(`
-*Сумма:* %.2f₽
+<b>Сумма:</b> %.2f₽
 `, amount)
 
 	if o.Amount != 0 && o.PayedAmount != 0 {
 		if o.PayedAmount >= o.Amount {
-			result += "*Оплачен:* полностью\n"
+			result += "<b>Оплачен:</b> полностью\n"
 		} else {
 			payedAmount := float32(o.PayedAmount) / 100.0
-			result += fmt.Sprintf("*Оплачено:* %.2f₽\n", payedAmount)
+			result += fmt.Sprintf("<b>Оплачено:</b> %.2f₽\n", payedAmount)
 			restAmount := float32(o.Amount-o.PayedAmount) / 100.0
-			result += fmt.Sprintf("*Остаток:* %.2f₽\n", restAmount)
+			result += fmt.Sprintf("<b>Остаток:</b> %.2f₽\n", restAmount)
 		}
 	}
 
 	if o.RefundAmount != 0 {
 		if o.RefundAmount >= o.Amount {
-			result += "*Возврат:* в полном объеме\n"
+			result += "<b>Возврат:</b> в полном объеме\n"
 		} else {
 			refundAmount := float32(o.RefundAmount) / 100.0
-			result += fmt.Sprintf("*Возвращено:* %.2f₽\n", refundAmount)
+			result += fmt.Sprintf("<b>Возвращено:</b> %.2f₽\n", refundAmount)
 		}
 	}
 
 	if o.Description != "" {
-		result += fmt.Sprintf("\n%s\n", o.Description)
+		result += fmt.Sprintf("\n<i>%s</i>\n", o.Description)
 	}
 
-	result += "\n*Позиции*\n"
+	result += "\n<b>Позиции</b>\n"
 
 	if o.ReceiptItems != nil {
 		for _, i := range o.ReceiptItems {
 			price := float32(i.Price) / 100.0
-			result += fmt.Sprintf("`- %s %.2f₽ x%d`\n", i.Name, price, i.Quantity)
+			result += fmt.Sprintf("<code>- %s %.2f₽ x%d</code>\n", i.Name, price, i.Quantity)
 		}
 	}
 
-	result += "\n*Клиент*"
+	result += "\n<b>Клиент</b>"
 	if c != nil {
 
 		if c.Name.Valid {
-			result += fmt.Sprintf("\n*Имя:* %s", c.Name.String)
+			result += fmt.Sprintf("\n<b>Имя:</b> %s", c.Name.String)
 		}
 
 		if c.Email.Valid {
-			email := strings.Replace(c.Email.String, "_", "\\_", -1)
-			result += fmt.Sprintf("\n*E-Mail:* %s", email)
+			result += fmt.Sprintf("\n<b>E-Mail:</b> %s", c.Email.String)
 		}
 
 		if c.Phone.Valid {
-			result += fmt.Sprintf("\n*Телефон:* [%[1]s](https://wa.me/%[1]s)", formatPhone(c.Phone.String))
+			result += fmt.Sprintf("\n<b>Телефон:</b> <a href=\"https://wa.me/%s\">%s</a>", c.Phone.String, formatPhone(c.Phone.String))
 		}
 
 		if c.Instagram.Valid {
-			result += fmt.Sprintf("\n*Instagram:* [@%[1]s](https://instagram.com/%[1]s)", c.Instagram.String)
+			result += fmt.Sprintf("\n<b>Instagram:</b> <a href=\"https://instagram.com/%[1]s\">@%[1]s</a>", c.Instagram.String)
 		}
 
 	} else {
@@ -275,7 +278,7 @@ func (o Order) getFullMessageString(c *Customer) string {
 	result += "\n"
 
 	if o.Payments != nil {
-		result += "\n*Данные по оплате*"
+		result += "\n<b>Данные по оплате</b>"
 		if len(o.Payments) == 0 {
 			result += "\nНе найдено"
 		} else {
@@ -290,7 +293,7 @@ func (o Order) getFullMessageString(c *Customer) string {
 }
 
 func (p Payment) MessageString(id int) string {
-	result := fmt.Sprintf(`*Платеж #%d.* %s.`, id, p.PaymentMethod.MessageString(p.PaymentLink))
+	result := fmt.Sprintf(`<b>Платеж #%d.</b> %s.`, id, p.PaymentMethod.MessageString(p.PaymentLink))
 
 	loc, err := time.LoadLocation("Europe/Moscow")
 	if err != nil {
@@ -298,29 +301,29 @@ func (p Payment) MessageString(id int) string {
 	}
 
 	amount := float32(p.Amount) / 100.0
-	result += fmt.Sprintf("\n*Сумма:* %.2f₽", amount)
+	result += fmt.Sprintf("\n<b>Сумма:</b> %.2f₽", amount)
 
 	if p.PaymentMethod == PaymentMethodAcquiring {
 		createdAt := p.CreatedAt.In(loc).Format("02 Jan 2006 15:04")
-		result += fmt.Sprintf("\n*Создан:* %s", createdAt)
+		result += fmt.Sprintf("\n<b>Создан:</b> %s", createdAt)
 
 		if p.Payed && p.PayedAt.Valid {
 			payedAt := p.PayedAt.Time.In(loc).Format("02 Jan 2006 15:04")
-			result += fmt.Sprintf("\n*Оплачен:* %s", payedAt)
+			result += fmt.Sprintf("\n<b>Оплачен:</b> %s", payedAt)
 		} else {
-			result += "\n*Оплачен:* нет"
+			result += "\n<b>Оплачен:</b> нет"
 		}
 	} else {
 		payedAt := p.PayedAt.Time.In(loc).Format("02 Jan 2006 15:04")
-		result += fmt.Sprintf("\n*Оплачен:* %s", payedAt)
+		result += fmt.Sprintf("\n<b>Оплачен:</b> %s", payedAt)
 	}
 
 	if p.RefundAmount != 0 {
 		refundAmount := float32(p.RefundAmount) / 100.0
 		if p.RefundAmount == p.Amount {
-			result += "\n*Возвращен:* в полном объеме"
+			result += "\n<b>Возвращен:</b> в полном объеме"
 		} else {
-			result += fmt.Sprintf("\n*Возвращено:* %.2f₽", refundAmount)
+			result += fmt.Sprintf("\n<b>Возвращено:</b> %.2f₽", refundAmount)
 		}
 	}
 
@@ -332,7 +335,7 @@ func (p PaymentMethod) MessageString(link string) string {
 	case PaymentMethodCard2Card:
 		return "Перевод на карту"
 	case PaymentMethodAcquiring:
-		return fmt.Sprintf("Оплата по [ссылке](%s)", link)
+		return fmt.Sprintf("Оплата по <a href=\"%s\">ссылке</a>", link)
 	case PaymentMethodCash:
 		return "Оплата наличными"
 	default:

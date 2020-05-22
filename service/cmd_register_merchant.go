@@ -31,7 +31,7 @@ func (s Service) registerMerchant(ctx context.Context, commandEvent *tp.CommandE
 
 	msg := tg.NewMessage(int64(userId), bot.ReplyMerchantSuccessfulRegistered)
 	msg.ReplyMarkup = merchantStandByKeyboardMarkup()
-	msg.ParseMode = "markdown"
+	msg.ParseMode = "html"
 
 	_, err = s.Bot.Send(msg)
 	if err != nil {

@@ -27,7 +27,7 @@ func (s Service) createOrder(ctx context.Context, userId, messageId uint64) erro
 	}
 
 	msg := tg.NewMessage(uid, messageText)
-	msg.ParseMode = "markdown"
+	msg.ParseMode = "html"
 
 	var orderMessage tg.Message
 	orderMessage, err = s.Bot.Send(msg)

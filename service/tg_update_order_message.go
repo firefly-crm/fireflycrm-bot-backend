@@ -35,7 +35,7 @@ func (s Service) updateOrderMessage(ctx context.Context, userId, messageId uint6
 	chatId := int64(order.UserId)
 
 	editMessage := tg.NewEditMessageText(chatId, int(messageId), order.MessageString(customer, orderMessage.DisplayMode))
-	editMessage.ParseMode = "markdown"
+	editMessage.ParseMode = "html"
 	editMessage.DisableWebPagePreview = true
 	var markup tg.InlineKeyboardMarkup
 	if flowCompleted {
