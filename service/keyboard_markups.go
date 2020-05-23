@@ -32,11 +32,11 @@ func startOrderInlineKeyboard(ctx context.Context, s Service, userId, messageId 
 		return markup, fmt.Errorf("failed to get order message: %w", err)
 	}
 
-	expandCollapseButton := tg.NewInlineKeyboardButtonData(bot.KbOrderExpandPictogram, bot.KbDataOrderExpand)
-	if message.DisplayMode == types.DisplayModeFull {
-		expandCollapseButton = tg.NewInlineKeyboardButtonData(bot.KbOrderCollapsePictogram, bot.KbDataOrderCollapse)
+	if message.DisplayMode == types.DisplayModeCollapsed {
+		return startOrderCollapsedInlineKeyboard(), nil
 	}
 
+	collapseButton := tg.NewInlineKeyboardButtonData(bot.KbOrderCollapsePictogram, bot.KbDataOrderCollapse)
 	customerButton := tg.NewInlineKeyboardButtonData(bot.KbCustomerPictogram, bot.KbDataCustomer)
 	paymentButton := tg.NewInlineKeyboardButtonData(bot.KbPaymentPictogram, bot.KbDataPayment)
 	actionsButton := tg.NewInlineKeyboardButtonData(bot.KbOrderActionsPictogram, bot.KbDataOrderActions)
@@ -45,17 +45,32 @@ func startOrderInlineKeyboard(ctx context.Context, s Service, userId, messageId 
 	if order.OrderState != types.OrderStateDone {
 		var row1 []tg.InlineKeyboardButton
 		if !order.CustomerId.Valid {
-			row1 = []tg.InlineKeyboardButton{itemsButton, customerButton, actionsButton, expandCollapseButton}
+			row1 = []tg.InlineKeyboardButton{itemsButton, customerButton, actionsButton, collapseButton}
 		} else {
-			row1 = []tg.InlineKeyboardButton{itemsButton, customerButton, paymentButton, actionsButton, expandCollapseButton}
+			row1 = []tg.InlineKeyboardButton{itemsButton, customerButton, paymentButton, actionsButton, collapseButton}
 		}
 		markup = tg.NewInlineKeyboardMarkup(row1)
 	} else {
-		row1 := []tg.InlineKeyboardButton{customerButton, paymentButton, actionsButton, expandCollapseButton}
+		row1 := []tg.InlineKeyboardButton{customerButton, paymentButton, actionsButton, collapseButton}
 		markup = tg.NewInlineKeyboardMarkup(row1)
 	}
 
 	return markup, nil
+}
+func startOrderCollapsedInlineKeyboard() tg.InlineKeyboardMarkup {
+	var markup tg.InlineKeyboardMarkup
+
+	expand := tg.NewInlineKeyboardButtonData(bot.KbOrderExpandPictogram, bot.KbDataOrderExpand)
+	forming := tg.NewInlineKeyboardButtonData(bot.KbOrderRestorePictogram, bot.KbDataOrderRestore)
+	inProgress := tg.NewInlineKeyboardButtonData(bot.KbOrderInProgressPictogram, bot.KbDataOrderInProgress)
+	done := tg.NewInlineKeyboardButtonData(bot.KbOrderDonePictogram, bot.KbDataOrderDone)
+
+	actionsButton := tg.NewInlineKeyboardButtonData(bot.KbOrderActionsPictogram, bot.KbDataOrderActions)
+
+	row1 := []tg.InlineKeyboardButton{forming, inProgress, done, actionsButton, expand}
+	markup = tg.NewInlineKeyboardMarkup(row1)
+
+	return markup
 }
 
 func restoreDeletedOrderInlineKeyboard() tg.InlineKeyboardMarkup {
