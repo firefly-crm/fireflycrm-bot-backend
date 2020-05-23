@@ -38,7 +38,7 @@ func (s Service) processOrderStateCallback(ctx context.Context, userId, messageI
 		}
 	}
 
-	err = s.updateOrderMessage(ctx, userId, messageId, true)
+	err = s.updateOrderMessage(ctx, userId, messageId, nil)
 	if err != nil {
 		return fmt.Errorf("failed to update order message: %w", err)
 	}

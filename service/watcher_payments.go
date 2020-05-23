@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 	mb "github.com/DarthRamone/modulbank-go"
-	tg "github.com/DarthRamone/telegram-bot-api"
 	"github.com/firefly-crm/common/logger"
+	tg "github.com/go-telegram-bot-api/telegram-bot-api"
 	"net/http"
 	"time"
 )
@@ -95,7 +95,7 @@ func (s Service) checkPayments(ctx context.Context) error {
 				continue
 			}
 
-			err = s.updateOrderMessage(ctx, user.Id, messages[0].Id, true)
+			err = s.updateOrderMessage(ctx, user.Id, messages[0].Id, nil)
 			if err != nil {
 				log.Errorf("failed to update order message: %v", err)
 				continue

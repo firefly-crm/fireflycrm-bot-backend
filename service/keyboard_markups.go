@@ -3,9 +3,9 @@ package service
 import (
 	"context"
 	"fmt"
-	tg "github.com/DarthRamone/telegram-bot-api"
 	"github.com/firefly-crm/common/bot"
 	"github.com/firefly-crm/fireflycrm-bot-backend/types"
+	tg "github.com/go-telegram-bot-api/telegram-bot-api"
 	"sort"
 )
 

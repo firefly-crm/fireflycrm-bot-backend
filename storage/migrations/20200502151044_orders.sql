@@ -12,7 +12,7 @@ CREATE TABLE orders
     refund_amount     INT         NOT NULL DEFAULT 0,
     active_item_id    BIGINT,
     active_payment_id BIGINT      REFERENCES payments ON DELETE SET NULL,
-    hint_message_id   BIGINT,
+    hint_text         TEXT        NOT NULL DEFAULT '',
     order_state       SMALLINT    NOT NULL DEFAULT 0,
     edit_state        SMALLINT    NOT NULL DEFAULT 0,
     due_date          DATE,

@@ -3,9 +3,9 @@ package service
 import (
 	"context"
 	"fmt"
-	tg "github.com/DarthRamone/telegram-bot-api"
 	"github.com/firefly-crm/common/logger"
 	"github.com/firefly-crm/fireflycrm-bot-backend/types"
+	tg "github.com/go-telegram-bot-api/telegram-bot-api"
 )
 
 func (s Service) createOrder(ctx context.Context, userId, messageId uint64) error {

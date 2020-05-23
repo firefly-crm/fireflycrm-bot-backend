@@ -3,12 +3,12 @@ package service
 import (
 	"context"
 	"fmt"
-	tg "github.com/DarthRamone/telegram-bot-api"
 	"github.com/firefly-crm/common/logger"
 	"github.com/firefly-crm/fireflycrm-bot-backend/types"
+	tg "github.com/go-telegram-bot-api/telegram-bot-api"
 )
 
-func (s Service) updateOrderMessage(ctx context.Context, userId, messageId uint64, flowCompleted bool) error {
+func (s Service) updateOrderMessage(ctx context.Context, userId, messageId uint64, markup *tg.InlineKeyboardMarkup) error {
 	log := logger.FromContext(ctx)
 
 	order, err := s.OrderBook.GetOrderByMessageId(ctx, userId, messageId)
@@ -37,16 +37,16 @@ func (s Service) updateOrderMessage(ctx context.Context, userId, messageId uint6
 	editMessage := tg.NewEditMessageText(chatId, int(messageId), order.MessageString(customer, orderMessage.DisplayMode))
 	editMessage.ParseMode = "html"
 	editMessage.DisableWebPagePreview = true
-	var markup tg.InlineKeyboardMarkup
-	if flowCompleted {
-		markup, err = startOrderInlineKeyboard(ctx, s, userId, messageId)
+
+	if markup == nil {
+		m, err := startOrderInlineKeyboard(ctx, s, userId, messageId)
 		if err != nil {
-			return fmt.Errorf("failed to get order inline kb: %w", err)
+			return fmt.Errorf("failed to get start order markup")
 		}
-	} else {
-		markup = cancelInlineKeyboard()
+		markup = &m
 	}
-	editMessage.ReplyMarkup = &markup
+
+	editMessage.ReplyMarkup = markup
 
 	_, err = s.Bot.Send(editMessage)
 	if err != nil {

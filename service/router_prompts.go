@@ -3,11 +3,11 @@ package service
 import (
 	"context"
 	"fmt"
-	tg "github.com/DarthRamone/telegram-bot-api"
 	"github.com/badoux/checkmail"
 	"github.com/firefly-crm/common/logger"
 	tp "github.com/firefly-crm/common/messages/telegram"
 	"github.com/firefly-crm/fireflycrm-bot-backend/types"
+	tg "github.com/go-telegram-bot-api/telegram-bot-api"
 	"regexp"
 	"strconv"
 	"strings"
@@ -28,18 +28,10 @@ func (s Service) ProcessPromptEvent(ctx context.Context, promptEvent *tp.PromptE
 		return fmt.Errorf("failed to get active order for user: %w", err)
 	}
 
-	deleteHint := true
 	standBy := true
 	flowCompleted := true
 
 	defer func() {
-		if deleteHint {
-			err = s.deleteHint(ctx, activeOrder)
-			if err != nil {
-				log.Errorf("failed to remove hint: %v", err)
-			}
-		}
-
 		if standBy {
 			err = s.OrderBook.UpdateOrderEditState(ctx, activeOrder.Id, types.EditStateNone)
 			if err != nil {
@@ -47,7 +39,12 @@ func (s Service) ProcessPromptEvent(ctx context.Context, promptEvent *tp.PromptE
 			}
 		}
 
-		err = s.updateOrderMessage(ctx, userId, activeMessageId, flowCompleted)
+		var markup tg.InlineKeyboardMarkup
+		if !flowCompleted {
+			markup = cancelInlineKeyboard()
+		}
+
+		err = s.updateOrderMessage(ctx, userId, activeMessageId, &markup)
 		if err != nil {
 			log.Errorf("failed to update order message: %v", err)
 		}
@@ -82,12 +79,11 @@ func (s Service) ProcessPromptEvent(ctx context.Context, promptEvent *tp.PromptE
 		}
 
 		if !item.Initialised {
-			err := s.setWaitingForPrice(ctx, activeOrder)
+			err := s.OrderBook.UpdateOrderEditState(ctx, activeOrder.Id, types.EditStateWaitingItemPrice)
 			if err != nil {
 				return fmt.Errorf("failed to change order state: %w", err)
 			}
 			flowCompleted = false
-			deleteHint = false
 			standBy = false
 		}
 	case types.EditStateWaitingItemPrice:

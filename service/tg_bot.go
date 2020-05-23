@@ -1,7 +1,7 @@
 package service
 
 import (
-	tg "github.com/DarthRamone/telegram-bot-api"
+	tg "github.com/go-telegram-bot-api/telegram-bot-api"
 	"net/http"
 )
 

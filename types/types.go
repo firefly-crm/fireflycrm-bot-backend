@@ -90,7 +90,6 @@ type (
 	Order struct {
 		Id              uint64        `db:"id"`
 		UserOrderId     uint64        `db:"user_order_id"`
-		HintMessageId   sql.NullInt64 `db:"hint_message_id"`
 		UserId          uint64        `db:"user_id"`
 		CustomerId      sql.NullInt64 `db:"customer_id"`
 		Description     string        `db:"description"`
@@ -102,6 +101,7 @@ type (
 		PayedAmount     uint32        `db:"payed_amount"`
 		RefundAmount    uint32        `db:"refund_amount"`
 		DueDate         sql.NullTime  `db:"due_date"`
+		HintText        string        `db:"hint_text"`
 		CreatedAt       time.Time     `db:"created_at"`
 		UpdatedAt       time.Time     `db:"updated_at"`
 		ReceiptItems    []ReceiptItem
@@ -189,6 +189,10 @@ func (o Order) getCollapsedMessageString(c *Customer) string {
 	}
 
 	result += fmt.Sprintf("<b>Срок сдачи:</b> %s; %s", dueDate, payed)
+
+	if o.HintText != "" {
+		result += fmt.Sprintf("\n\nℹ️ <i>%s</i>", o.HintText)
+	}
 
 	return result
 }
@@ -294,6 +298,10 @@ func (o Order) getFullMessageString(c *Customer) string {
 				result += fmt.Sprintf("\n%s\n", p.MessageString(i+1))
 			}
 		}
+	}
+
+	if o.HintText != "" {
+		result += fmt.Sprintf("\nℹ️ <i>%s</i>", o.HintText)
 	}
 
 	return result

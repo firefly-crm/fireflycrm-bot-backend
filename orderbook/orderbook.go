@@ -13,7 +13,6 @@ type (
 		RemoveItem(context context.Context, receiptItem uint64) error
 		GeneratePaymentLink(context context.Context, paymentId uint64) error
 		GetOrderByMessageId(ctx context.Context, userId, messageId uint64) (order types.Order, err error)
-		UpdateHintMessageForOrder(ctx context.Context, orderId, messageId uint64) error
 		UpdateMessageForOrder(ctx context.Context, userId, orderId, messageId uint64) error
 		UpdateOrderEditState(ctx context.Context, orderId uint64, state types.EditState) error
 		GetActiveOrderForUser(ctx context.Context, userId uint64) (types.Order, error)
