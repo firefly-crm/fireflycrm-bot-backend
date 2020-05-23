@@ -26,6 +26,7 @@ const (
 	EditStateWaitingRefundAmount
 	EditStateWaitingOrderDueDate
 	EditStateWaitingOrderDescription
+	EditStateWaitingCustomerDescription
 )
 
 const (
@@ -76,13 +77,14 @@ type (
 	}
 
 	Customer struct {
-		Id        uint64         `db:"id"`
-		Email     sql.NullString `db:"email"`
-		Phone     sql.NullString `db:"phone"`
-		Name      sql.NullString `db:"name"`
-		Instagram sql.NullString `db:"instagram"`
-		CreatedAt time.Time      `db:"created_at"`
-		UpdatedAt time.Time      `db:"updated_at"`
+		Id          uint64         `db:"id"`
+		Email       sql.NullString `db:"email"`
+		Phone       sql.NullString `db:"phone"`
+		Name        sql.NullString `db:"name"`
+		Instagram   sql.NullString `db:"instagram"`
+		Description string         `db:"description"`
+		CreatedAt   time.Time      `db:"created_at"`
+		UpdatedAt   time.Time      `db:"updated_at"`
 	}
 
 	Order struct {
@@ -270,6 +272,10 @@ func (o Order) getFullMessageString(c *Customer) string {
 
 		if c.Instagram.Valid {
 			result += fmt.Sprintf("\n<b>Instagram:</b> <a href=\"https://instagram.com/%[1]s\">@%[1]s</a>", c.Instagram.String)
+		}
+
+		if c.Description != "" {
+			result += fmt.Sprintf("\n<b>Заметка:</b> %s", c.Description)
 		}
 
 	} else {

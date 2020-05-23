@@ -7,7 +7,7 @@ require (
 	github.com/DarthRamone/telegram-bot-api v4.6.6+incompatible
 	github.com/badoux/checkmail v0.0.0-20181210160741-9661bd69e9ad
 	github.com/brianvoe/gofakeit v3.18.0+incompatible
-	github.com/firefly-crm/common v0.0.9
+	github.com/firefly-crm/common v0.0.11
 	github.com/go-telegram-bot-api/telegram-bot-api v4.6.4+incompatible // indirect
 	github.com/gojuno/goose v1.0.0
 	github.com/gojuno/minimock/v3 v3.0.6

@@ -32,6 +32,7 @@ type (
 		GetReceiptItem(ctx context.Context, id uint64) (types.ReceiptItem, error)
 		SetActiveItemId(ctx context.Context, orderId uint64, receiptItemId uint64) error
 		UpdateCustomerEmail(ctx context.Context, email string, orderId uint64) (uint64, error)
+		UpdateCustomerDescription(ctx context.Context, text string, orderId uint64) error
 		GetCustomer(ctx context.Context, customerId uint64) (c types.Customer, err error)
 		AddPayment(ctx context.Context, orderId uint64, method types.PaymentMethod) (uint64, error)
 		RemovePayment(ctx context.Context, paymentId uint64) error
@@ -468,6 +469,37 @@ UPDATE orders SET customer_id=$2 WHERE id=$1`
 	}
 
 	return customerId, nil
+}
+
+func (s storage) UpdateCustomerDescription(ctx context.Context, text string, orderId uint64) error {
+	tx, err := s.db.BeginTxx(ctx, nil)
+	if err != nil {
+		return fmt.Errorf("failed to start transaction: %w", err)
+	}
+	defer func() {
+		if err != nil {
+			_ = tx.Rollback()
+		} else {
+			_ = tx.Commit()
+		}
+	}()
+
+	const getExistingCustomerQuery = `SELECT customer_id FROM orders WHERE id=$1`
+
+	const updateCustomerDataQuery = `UPDATE customers SET description=$2 WHERE id=$1`
+
+	var id sql.NullInt64
+	err = tx.Get(&id, getExistingCustomerQuery, orderId)
+	if id.Valid {
+		_, err = tx.Exec(updateCustomerDataQuery, id, text)
+		if err != nil {
+			return fmt.Errorf("failed to update customer instagram: %w", err)
+		}
+	} else {
+		return fmt.Errorf("failed to get current customer")
+	}
+
+	return nil
 }
 
 func (s storage) RemoveReceiptItem(ctx context.Context, receiptItemId uint64) error {
