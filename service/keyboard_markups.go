@@ -149,13 +149,12 @@ func customerInlineKeyboard(ctx context.Context, s Service, userId, messageId ui
 	emailButton := tg.NewInlineKeyboardButtonData(bot.KbCustomerEmail, fmt.Sprintf("customer_edit_email_%d", order.Id))
 	instaButton := tg.NewInlineKeyboardButtonData(bot.KbCustomerInstagram, fmt.Sprintf("customer_edit_instagram_%d", order.Id))
 	phoneButton := tg.NewInlineKeyboardButtonData(bot.KbCustomerPhone, fmt.Sprintf("customer_edit_phone_%d", order.Id))
+	noteButton := tg.NewInlineKeyboardButtonData(bot.KbCustomerDescription, fmt.Sprintf("customer_edit_description_%d", order.Id))
 	backButton := tg.NewInlineKeyboardButtonData(bot.KbBack, bot.KbDataBack)
 
 	markups := [][]tg.InlineKeyboardButton{
-		//{nameButton},
-		{instaButton},
-		{emailButton},
-		{phoneButton},
+		{instaButton, emailButton},
+		{phoneButton, noteButton},
 		{backButton},
 	}
 
