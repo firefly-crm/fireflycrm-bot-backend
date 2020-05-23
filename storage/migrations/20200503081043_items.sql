@@ -5,7 +5,7 @@ CREATE TABLE items
     id         SERIAL PRIMARY KEY,
     user_id    BIGINT REFERENCES users,
     name       TEXT,
-    type       SMALLINT,
+    type       SMALLINT NOT NULL DEFAULT 0,
     created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
@@ -19,7 +19,6 @@ CREATE TABLE receipt_items
     order_id     INT REFERENCES orders NOT NULL,
     quantity     INT                   NOT NULL DEFAULT 1,
     price        INT                   NOT NULL DEFAULT 0,
-    payed_amount INT                   NOT NULL DEFAULT 0,
     type         SMALLINT              NOT NULL DEFAULT 0,
     initialised  BOOLEAN               NOT NULL DEFAULT FALSE,
     created_at   TIMESTAMPTZ           NOT NULL DEFAULT CURRENT_TIMESTAMP,

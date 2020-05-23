@@ -70,7 +70,6 @@ type (
 		Price       uint32          `db:"price"`
 		Quantity    uint32          `db:"quantity"`
 		Initialised bool            `db:"initialised"`
-		PayedAmount uint32          `db:"payed_amount"`
 		Type        ReceiptItemType `db:"type"`
 		CreatedAt   time.Time       `db:"created_at"`
 		UpdatedAt   time.Time       `db:"updated_at"`
