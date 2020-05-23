@@ -3,11 +3,11 @@ package service
 import (
 	"context"
 	"fmt"
+	tg "github.com/DarthRamone/telegram-bot-api"
 	"github.com/badoux/checkmail"
 	"github.com/firefly-crm/common/logger"
 	tp "github.com/firefly-crm/common/messages/telegram"
 	"github.com/firefly-crm/fireflycrm-bot-backend/types"
-	tg "github.com/go-telegram-bot-api/telegram-bot-api"
 	"regexp"
 	"strconv"
 	"strings"
@@ -39,12 +39,13 @@ func (s Service) ProcessPromptEvent(ctx context.Context, promptEvent *tp.PromptE
 			}
 		}
 
-		var markup tg.InlineKeyboardMarkup
+		var markup *tg.InlineKeyboardMarkup
 		if !flowCompleted {
-			markup = cancelInlineKeyboard()
+			m := cancelInlineKeyboard()
+			markup = &m
 		}
 
-		err = s.updateOrderMessage(ctx, userId, activeMessageId, &markup)
+		err = s.updateOrderMessage(ctx, userId, activeMessageId, markup)
 		if err != nil {
 			log.Errorf("failed to update order message: %v", err)
 		}

@@ -3,9 +3,10 @@ package service
 import (
 	"context"
 	"fmt"
+	tg "github.com/DarthRamone/telegram-bot-api"
 	"github.com/firefly-crm/common/logger"
 	"github.com/firefly-crm/fireflycrm-bot-backend/types"
-	tg "github.com/go-telegram-bot-api/telegram-bot-api"
+	"runtime/debug"
 )
 
 func (s Service) updateOrderMessage(ctx context.Context, userId, messageId uint64, markup *tg.InlineKeyboardMarkup) error {
@@ -44,6 +45,10 @@ func (s Service) updateOrderMessage(ctx context.Context, userId, messageId uint6
 			return fmt.Errorf("failed to get start order markup")
 		}
 		markup = &m
+	}
+
+	if markup == nil {
+		debug.PrintStack()
 	}
 
 	editMessage.ReplyMarkup = markup

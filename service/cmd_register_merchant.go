@@ -3,9 +3,9 @@ package service
 import (
 	"context"
 	"fmt"
+	tg "github.com/DarthRamone/telegram-bot-api"
 	"github.com/firefly-crm/common/bot"
 	tp "github.com/firefly-crm/common/messages/telegram"
-	tg "github.com/go-telegram-bot-api/telegram-bot-api"
 )
 
 func (s Service) registerMerchant(ctx context.Context, commandEvent *tp.CommandEvent) error {

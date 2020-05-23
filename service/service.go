@@ -1,10 +1,10 @@
 package service
 
 import (
+	tg "github.com/DarthRamone/telegram-bot-api"
 	"github.com/firefly-crm/fireflycrm-bot-backend/orderbook"
 	"github.com/firefly-crm/fireflycrm-bot-backend/storage"
 	"github.com/firefly-crm/fireflycrm-bot-backend/users"
-	tg "github.com/go-telegram-bot-api/telegram-bot-api"
 )
 
 type (

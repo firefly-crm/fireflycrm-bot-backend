@@ -3,11 +3,11 @@ package service
 import (
 	"context"
 	"fmt"
+	tg "github.com/DarthRamone/telegram-bot-api"
 	. "github.com/firefly-crm/common/bot"
 	"github.com/firefly-crm/common/logger"
 	tp "github.com/firefly-crm/common/messages/telegram"
 	"github.com/firefly-crm/fireflycrm-bot-backend/types"
-	tg "github.com/go-telegram-bot-api/telegram-bot-api"
 )
 
 func (s Service) ProcessCallbackEvent(ctx context.Context, callbackEvent *tp.CallbackEvent) (err error) {
@@ -32,10 +32,6 @@ func (s Service) ProcessCallbackEvent(ctx context.Context, callbackEvent *tp.Cal
 	if err != nil {
 		return fmt.Errorf("failed to set active order msg id: %w", err)
 	}
-
-	defer func() {
-
-	}()
 
 	switch event {
 	case tp.CallbackType_ITEMS:

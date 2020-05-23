@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"github.com/firefly-crm/fireflycrm-bot-backend/types"
 	"github.com/jmoiron/sqlx"
-	"log"
 	"time"
 )
 
@@ -741,7 +740,6 @@ func (s storage) AddOrderMessage(ctx context.Context, userId, orderId, messageId
 }
 
 func (s storage) SetActiveOrderMessageForUser(ctx context.Context, userId, messageId uint64) error {
-	log.Printf("seting active order; userId: %d, orderId: %d", userId, messageId)
 	const setActiveOrderQuery = `UPDATE users SET active_order_msg_id=$1 WHERE id=$2`
 	_, err := s.db.Exec(setActiveOrderQuery, messageId, userId)
 	if err != nil {
