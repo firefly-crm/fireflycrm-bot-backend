@@ -152,9 +152,14 @@ func customerInlineKeyboard(ctx context.Context, s Service, userId, messageId ui
 	noteButton := tg.NewInlineKeyboardButtonData(bot.KbCustomerDescription, fmt.Sprintf("customer_edit_description_%d", order.Id))
 	backButton := tg.NewInlineKeyboardButtonData(bot.KbBack, bot.KbDataBack)
 
+	row2 := tg.NewInlineKeyboardRow(phoneButton)
+	if order.CustomerId.Valid {
+		row2 = append(row2, noteButton)
+	}
+
 	markups := [][]tg.InlineKeyboardButton{
 		{instaButton, emailButton},
-		{phoneButton, noteButton},
+		row2,
 		{backButton},
 	}
 
