@@ -63,15 +63,17 @@ type (
 	}
 
 	ReceiptItem struct {
-		Id          uint64        `db:"id"`
-		Name        string        `db:"name"`
-		ItemId      sql.NullInt64 `db:"item_id"`
-		OrderId     uint64        `db:"order_id"`
-		Price       uint32        `db:"price"`
-		Quantity    uint32        `db:"quantity"`
-		Initialised bool          `db:"initialised"`
-		CreatedAt   time.Time     `db:"created_at"`
-		UpdatedAt   time.Time     `db:"updated_at"`
+		Id          uint64          `db:"id"`
+		Name        string          `db:"name"`
+		ItemId      sql.NullInt64   `db:"item_id"`
+		OrderId     uint64          `db:"order_id"`
+		Price       uint32          `db:"price"`
+		Quantity    uint32          `db:"quantity"`
+		Initialised bool            `db:"initialised"`
+		PayedAmount uint32          `db:"payed_amount"`
+		Type        ReceiptItemType `db:"type"`
+		CreatedAt   time.Time       `db:"created_at"`
+		UpdatedAt   time.Time       `db:"updated_at"`
 	}
 
 	Customer struct {

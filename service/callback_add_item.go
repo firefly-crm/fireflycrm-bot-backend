@@ -24,18 +24,20 @@ func (s Service) processAddKnownItem(ctx context.Context, callback *tp.CallbackE
 		return fmt.Errorf("failed to send message: %w", err)
 	}
 
-	var itemId uint64
-	itemId, err = s.OrderBook.AddItem(ctx, order.Id)
-	if err != nil {
-		return fmt.Errorf("failed to add item to order")
-	}
-
 	name := "Unknown item"
+	itemType := types.ReceiptItemTypeGoods
 	switch data {
 	case bot.KbDataDelivery:
 		name = "Доставка"
+		itemType = types.ReceiptItemTypeDelivery
 	case bot.KbDataLingerieSet:
 		name = "Комплект нижнего белья"
+	}
+
+	var itemId uint64
+	itemId, err = s.OrderBook.AddItem(ctx, order.Id, itemType)
+	if err != nil {
+		return fmt.Errorf("failed to add item to order")
 	}
 
 	err = s.OrderBook.UpdateReceiptItemName(ctx, name, uint64(userId), itemId)
@@ -70,7 +72,7 @@ func (s Service) processAddItemCallack(ctx context.Context, callback *tp.Callbac
 		return fmt.Errorf("failed to send message: %w", err)
 	}
 
-	_, err = s.OrderBook.AddItem(ctx, order.Id)
+	_, err = s.OrderBook.AddItem(ctx, order.Id, types.ReceiptItemTypeGoods)
 	if err != nil {
 		return fmt.Errorf("failed to add item to order")
 	}

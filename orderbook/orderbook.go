@@ -9,7 +9,7 @@ import (
 type (
 	OrderBook interface {
 		CreateOrder(context context.Context, userId uint64) (types.Order, error)
-		AddItem(context context.Context, orderId uint64) (uint64, error)
+		AddItem(context context.Context, orderId uint64, t types.ReceiptItemType) (uint64, error)
 		RemoveItem(context context.Context, receiptItem uint64) error
 		GeneratePaymentLink(context context.Context, paymentId uint64) error
 		GetOrderByMessageId(ctx context.Context, userId, messageId uint64) (order types.Order, err error)

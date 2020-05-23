@@ -20,6 +20,7 @@ CREATE TABLE receipt_items
     quantity     INT                   NOT NULL DEFAULT 1,
     price        INT                   NOT NULL DEFAULT 0,
     payed_amount INT                   NOT NULL DEFAULT 0,
+    type         SMALLINT              NOT NULL DEFAULT 0,
     initialised  BOOLEAN               NOT NULL DEFAULT FALSE,
     created_at   TIMESTAMPTZ           NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at   TIMESTAMPTZ           NOT NULL DEFAULT CURRENT_TIMESTAMP

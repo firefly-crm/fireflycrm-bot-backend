@@ -24,7 +24,7 @@ type (
 		AddOrderMessage(ctx context.Context, userId, orderId, messageId uint64) error
 		UpdateOrderEditState(ctx context.Context, orderId uint64, state types.EditState) error
 		UpdateOrderState(ctx context.Context, orderId uint64, state types.OrderState) error
-		AddItemToOrder(ctx context.Context, orderId uint64) (receiptItemId uint64, err error)
+		AddItemToOrder(ctx context.Context, orderId uint64, t types.ReceiptItemType) (receiptItemId uint64, err error)
 		RemoveReceiptItem(ctx context.Context, receiptItemId uint64) error
 		UpdateReceiptItemName(ctx context.Context, name string, userId, receiptItemId uint64) (err error)
 		UpdateReceiptItemPrice(ctx context.Context, price uint32, receiptItemId uint64) (err error)
@@ -566,13 +566,21 @@ func (s storage) UpdateReceiptItemName(ctx context.Context, name string, userId,
 INSERT INTO items(user_id,name)
 VALUES($1,$2)
 ON CONFLICT(user_id,name) DO UPDATE SET name=$2
-RETURNING id
-`
+RETURNING id`
+
 	const updateNameQuery = `
 UPDATE receipt_items
 SET
 	item_id=$2,
 	name=$3
+WHERE
+	id=$1
+RETURNING type`
+
+	const updateTypeQuery = `
+UPDATE items
+SET
+	type=$2
 WHERE
 	id=$1`
 
@@ -594,9 +602,15 @@ WHERE
 		return fmt.Errorf("failed to create or get item: %w", err)
 	}
 
-	_, err = tx.Exec(updateNameQuery, receiptItemId, itemId, name)
+	var t types.ReceiptItemType
+	err = tx.Get(&t, updateNameQuery, receiptItemId, itemId, name)
 	if err != nil {
 		return fmt.Errorf("failed to update receipt item: %w", err)
+	}
+
+	_, err = tx.Exec(updateTypeQuery, itemId, t)
+	if err != nil {
+		return fmt.Errorf("failed to update item type: %w", err)
 	}
 
 	return nil
@@ -611,8 +625,8 @@ func (s storage) SetActiveItemId(ctx context.Context, orderId uint64, receiptIte
 	return nil
 }
 
-func (s storage) AddItemToOrder(ctx context.Context, orderId uint64) (receiptItemId uint64, err error) {
-	const createReceiptItemQuery = `INSERT INTO receipt_items(order_id) VALUES ($1) RETURNING id`
+func (s storage) AddItemToOrder(ctx context.Context, orderId uint64, t types.ReceiptItemType) (receiptItemId uint64, err error) {
+	const createReceiptItemQuery = `INSERT INTO receipt_items(order_id, type) VALUES ($1, $2) RETURNING id`
 
 	const setActiveItemIdQuery = `UPDATE orders SET active_item_id=$1 WHERE id=$2`
 
@@ -628,7 +642,7 @@ func (s storage) AddItemToOrder(ctx context.Context, orderId uint64) (receiptIte
 		}
 	}()
 
-	err = tx.Get(&receiptItemId, createReceiptItemQuery, orderId)
+	err = tx.Get(&receiptItemId, createReceiptItemQuery, orderId, t)
 	if err != nil {
 		return receiptItemId, fmt.Errorf("failed to create receipt item: %w", err)
 	}
