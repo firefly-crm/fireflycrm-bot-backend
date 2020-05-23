@@ -132,6 +132,11 @@ func (s Service) ProcessPromptEvent(ctx context.Context, promptEvent *tp.PromptE
 		if err != nil {
 			return fmt.Errorf("failed to update customer email: %w", err)
 		}
+	case types.EditStateWaitingCustomerDescription:
+		err := s.Storage.UpdateCustomerDescription(ctx, text, activeOrder.Id)
+		if err != nil {
+			return fmt.Errorf("failed to set customer description: %w", err)
+		}
 	case types.EditStateWaitingPaymentAmount:
 		if !activeOrder.ActivePaymentId.Valid {
 			return fmt.Errorf("active payment id doesnt exists")

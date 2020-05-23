@@ -22,6 +22,7 @@ type (
 		UpdateReceiptItemPrice(ctx context.Context, price uint32, receiptItemId uint64) (err error)
 		UpdateReceiptItemQty(ctx context.Context, qty int, receiptItemId uint64) (err error)
 		UpdateCustomerEmail(ctx context.Context, email string, orderId uint64) (customerId uint64, err error)
+		UpdateCustomerDescription(ctx context.Context, text string, orderId uint64) (err error)
 		UpdateCustomerInstagram(ctx context.Context, instagram string, orderId uint64) (customerId uint64, err error)
 		GetReceiptItem(ctx context.Context, receiptItemId uint64) (item types.ReceiptItem, err error)
 		GetOrder(ctx context.Context, orderId uint64) (order types.Order, err error)

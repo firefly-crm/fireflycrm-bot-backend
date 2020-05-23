@@ -245,6 +245,12 @@ func (s Service) ProcessCallbackEvent(ctx context.Context, callbackEvent *tp.Cal
 		if err != nil {
 			return fmt.Errorf("faield to process customer edit phone callbackEvent: %w", err)
 		}
+	case tp.CallbackType_CUSTOMER_EDIT_DESCRIPTION:
+		markup = cancelInlineKeyboard()
+		err := s.processCustomerEditDescription(ctx, callbackEvent)
+		if err != nil {
+			return fmt.Errorf("faield to process customer edit description callbackEvent: %w", err)
+		}
 	case tp.CallbackType_PAYMENT_REMOVE:
 		err := s.processPaymentRemove(ctx, callbackEvent)
 		if err != nil {

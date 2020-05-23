@@ -13,13 +13,14 @@ CREATE TABLE users
 
 CREATE TABLE customers
 (
-    id         BIGSERIAL   NOT NULL PRIMARY KEY,
-    name       TEXT,
-    email      TEXT,
-    phone      TEXT,
-    instagram  TEXT,
-    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+    id          BIGSERIAL   NOT NULL PRIMARY KEY,
+    name        TEXT,
+    email       TEXT,
+    phone       TEXT,
+    instagram   TEXT,
+    description TEXT        NOT NULL DEFAULT '',
+    created_at  TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at  TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 CREATE UNIQUE INDEX customers_insta_idx ON customers (instagram);
 CREATE UNIQUE INDEX customers_phone_idx ON customers (phone);
