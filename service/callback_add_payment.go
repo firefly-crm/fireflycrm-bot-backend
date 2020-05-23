@@ -3,9 +3,6 @@ package service
 import (
 	"context"
 	"fmt"
-	tg "github.com/DarthRamone/telegram-bot-api"
-	"github.com/firefly-crm/common/bot"
-	"github.com/firefly-crm/common/logger"
 	tp "github.com/firefly-crm/common/messages/telegram"
 	"github.com/firefly-crm/fireflycrm-bot-backend/types"
 )
@@ -32,16 +29,6 @@ func (s Service) processPartialPaymentCallback(ctx context.Context, callback *tp
 	if err != nil {
 		return fmt.Errorf("failed to get order by message id: %w", err)
 	}
-	hintMessage := tg.NewMessage(userId, bot.ReplyEnterAmount)
-	hint, err := s.Bot.Send(hintMessage)
-	if err != nil {
-		return fmt.Errorf("failed to send message: %w", err)
-	}
-
-	err = s.OrderBook.UpdateHintMessageForOrder(ctx, order.Id, uint64(hint.MessageID))
-	if err != nil {
-		return fmt.Errorf("failed to update hint message: %w", err)
-	}
 
 	err = s.OrderBook.UpdateOrderEditState(ctx, order.Id, types.EditStateWaitingPaymentAmount)
 	if err != nil {
@@ -53,8 +40,6 @@ func (s Service) processPartialPaymentCallback(ctx context.Context, callback *tp
 
 //if amount is 0 then full payment
 func (s Service) processPaymentCallback(ctx context.Context, userId, messageId uint64, amount uint32) error {
-	log := logger.FromContext(ctx)
-
 	order, err := s.OrderBook.GetOrderByMessageId(ctx, userId, messageId)
 	if err != nil {
 		return fmt.Errorf("failed to get order: %w", err)
@@ -77,12 +62,6 @@ func (s Service) processPaymentCallback(ctx context.Context, userId, messageId u
 		}
 	}
 
-	defer func() {
-		if err := s.deleteHint(ctx, order); err != nil {
-			log.Errorf("failed to delete hint: %v", err.Error())
-		}
-	}()
-
 	err = s.OrderBook.UpdatePaymentAmount(ctx, paymentId, amount)
 	if err != nil {
 		return fmt.Errorf("failed to update payment amount: %w", err)
@@ -95,7 +74,7 @@ func (s Service) processPaymentCallback(ctx context.Context, userId, messageId u
 		}
 	}
 
-	err = s.updateOrderMessage(ctx, userId, messageId, true)
+	err = s.updateOrderMessage(ctx, userId, messageId, nil)
 	if err != nil {
 		return fmt.Errorf("failed to update order message: %w", err)
 	}

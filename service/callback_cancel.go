@@ -51,14 +51,9 @@ func (s Service) processCancelCallback(ctx context.Context, userId, messageId ui
 		}
 	}
 
-	err = s.updateOrderMessage(ctx, userId, messageId, true)
+	err = s.updateOrderMessage(ctx, userId, messageId, nil)
 	if err != nil {
 		return fmt.Errorf("failed to update order message: %w", err)
-	}
-
-	err = s.deleteHint(ctx, order)
-	if err != nil {
-		return fmt.Errorf("failed to delete hint: %w", err)
 	}
 
 	return nil

@@ -95,7 +95,7 @@ func (s Service) checkPayments(ctx context.Context) error {
 				continue
 			}
 
-			err = s.updateOrderMessage(ctx, user.Id, messages[0].Id, true)
+			err = s.updateOrderMessage(ctx, user.Id, messages[0].Id, nil)
 			if err != nil {
 				log.Errorf("failed to update order message: %v", err)
 				continue

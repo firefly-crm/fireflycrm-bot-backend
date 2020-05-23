@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"github.com/firefly-crm/fireflycrm-bot-backend/types"
 	"github.com/jmoiron/sqlx"
-	"log"
 	"time"
 )
 
@@ -20,9 +19,8 @@ type (
 		GetOrderByMessageId(ctx context.Context, userId, messageId uint64) (order types.Order, err error)
 		SetActiveOrderMessageForUser(ctx context.Context, userId, orderId uint64) error
 		GetActiveOrderForUser(ctx context.Context, userId uint64) (types.Order, error)
-		UpdateHintMessageForOrder(ctx context.Context, orderId uint64, messageId sql.NullInt64) error
 		AddOrderMessage(ctx context.Context, userId, orderId, messageId uint64) error
-		UpdateOrderEditState(ctx context.Context, orderId uint64, state types.EditState) error
+		UpdateOrderEditState(ctx context.Context, orderId uint64, state types.EditState, hint string) error
 		UpdateOrderState(ctx context.Context, orderId uint64, state types.OrderState) error
 		AddItemToOrder(ctx context.Context, orderId uint64, t types.ReceiptItemType) (receiptItemId uint64, err error)
 		RemoveReceiptItem(ctx context.Context, receiptItemId uint64) error
@@ -53,6 +51,7 @@ type (
 		GetMessagesForOrder(ctx context.Context, userId, orderId uint64) ([]types.OrderMessage, error)
 		UpdateOrderDueDate(ctx context.Context, userId, orderId uint64, date time.Time) error
 		UpdateOrderDescription(ctx context.Context, userId, orderId uint64, description string) error
+		UpdateOrderHint(ctx context.Context, userId, orderId uint64, hint string) error
 	}
 
 	storage struct {
@@ -85,6 +84,15 @@ func (s storage) UpdateOrderDueDate(ctx context.Context, userId, orderId uint64,
 func (s storage) UpdateOrderDescription(ctx context.Context, userId, orderId uint64, description string) error {
 	const updateQuery = `UPDATE orders SET description=$3 WHERE user_id=$2 AND id=$1`
 	_, err := s.db.Exec(updateQuery, orderId, userId, description)
+	if err != nil {
+		return fmt.Errorf("failed to update order description: %w", err)
+	}
+	return nil
+}
+
+func (s storage) UpdateOrderHint(ctx context.Context, userId, orderId uint64, hint string) error {
+	const updateQuery = `UPDATE orders SET hint_text=$3 WHERE user_id=$2 AND id=$1`
+	_, err := s.db.Exec(updateQuery, orderId, userId, hint)
 	if err != nil {
 		return fmt.Errorf("failed to update order description: %w", err)
 	}
@@ -687,9 +695,9 @@ func (s storage) AddItemToOrder(ctx context.Context, orderId uint64, t types.Rec
 	return
 }
 
-func (s storage) UpdateOrderEditState(ctx context.Context, orderId uint64, state types.EditState) error {
-	const updateQuery = `UPDATE orders SET edit_state=$1 WHERE id=$2`
-	_, err := s.db.Exec(updateQuery, state, orderId)
+func (s storage) UpdateOrderEditState(ctx context.Context, orderId uint64, state types.EditState, hint string) error {
+	const updateQuery = `UPDATE orders SET edit_state=$1, hint_text=$3 WHERE id=$2`
+	_, err := s.db.Exec(updateQuery, state, orderId, hint)
 	if err != nil {
 		return fmt.Errorf("failed to update order edit state: %w", err)
 	}
@@ -722,15 +730,6 @@ WHERE
 	return order, nil
 }
 
-func (s storage) UpdateHintMessageForOrder(ctx context.Context, orderId uint64, messageId sql.NullInt64) error {
-	const updateQuery = `UPDATE orders SET hint_message_id=$1 WHERE id=$2`
-	_, err := s.db.Exec(updateQuery, messageId, orderId)
-	if err != nil {
-		return fmt.Errorf("failed to update hint message id: %w", err)
-	}
-	return nil
-}
-
 func (s storage) AddOrderMessage(ctx context.Context, userId, orderId, messageId uint64) error {
 	const addQuery = `INSERT INTO order_messages(id, order_id, user_id) VALUES($1,$2,$3)`
 	_, err := s.db.Exec(addQuery, messageId, orderId, userId)
@@ -741,7 +740,6 @@ func (s storage) AddOrderMessage(ctx context.Context, userId, orderId, messageId
 }
 
 func (s storage) SetActiveOrderMessageForUser(ctx context.Context, userId, messageId uint64) error {
-	log.Printf("seting active order; userId: %d, orderId: %d", userId, messageId)
 	const setActiveOrderQuery = `UPDATE users SET active_order_msg_id=$1 WHERE id=$2`
 	_, err := s.db.Exec(setActiveOrderQuery, messageId, userId)
 	if err != nil {

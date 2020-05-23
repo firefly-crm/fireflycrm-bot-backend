@@ -316,15 +316,17 @@ func (s Service) ProcessCallbackEvent(ctx context.Context, callbackEvent *tp.Cal
 		return fmt.Errorf("unknown callbackEvent event: %v", event)
 	}
 
-	var msg tg.Chattable
 	if !shouldDelete {
-		msg = tg.NewEditMessageReplyMarkup(int64(userId), int(messageId), markup)
+		err := s.updateOrderMessage(ctx, userId, messageId, &markup)
+		if err != nil {
+			log.Errorf("failed to update order message: %v", err)
+		}
 	} else {
-		msg = tg.NewDeleteMessage(int64(userId), int(messageId))
-	}
-	_, err = s.Bot.Send(msg)
-	if err != nil {
-		return fmt.Errorf("failed to send message: %w", err)
+		msg := tg.NewDeleteMessage(int64(userId), int(messageId))
+		_, err = s.Bot.Send(msg)
+		if err != nil {
+			return fmt.Errorf("failed to send message: %w", err)
+		}
 	}
 
 	return nil
