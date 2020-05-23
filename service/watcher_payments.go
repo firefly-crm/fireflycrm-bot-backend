@@ -3,9 +3,9 @@ package service
 import (
 	"context"
 	"fmt"
-	mb "github.com/DarthRamone/modulbank-go"
 	tg "github.com/DarthRamone/telegram-bot-api"
 	"github.com/firefly-crm/common/logger"
+	mb "github.com/firefly-crm/modulbank-go"
 	"net/http"
 	"time"
 )

@@ -14,10 +14,6 @@ dmitri.shuralyov.com/gpu/mtl v0.0.0-20190408044501-666a987793e9/go.mod h1:H6x//7
 github.com/BurntSushi/toml v0.3.1 h1:WXkYYl6Yr3qBf1K79EBnL4mak0OimBfB0XUf9Vl28OQ=
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
 github.com/BurntSushi/xgb v0.0.0-20160522181843-27f122750802/go.mod h1:IVnqGOEym/WlBOVXweHU+Q+/VP0lqqI8lqeDx9IjBqo=
-github.com/DarthRamone/modulbank-go v0.0.5 h1:YN5fTduQDm+Fm7rnwIkivOOvawoOYorBqWkP5ZN1hk0=
-github.com/DarthRamone/modulbank-go v0.0.5/go.mod h1:2CYtCf9HvIuWNxB03gePte0PuDTuqLW9CmPQb40gXXQ=
-github.com/DarthRamone/telegram-bot-api v4.6.6+incompatible h1:BjlZ+i4UDKLxCgQaqwu6KrzeNeTDYGOfrXrNFd3yFOU=
-github.com/DarthRamone/telegram-bot-api v4.6.6+incompatible/go.mod h1:60GaC58LlGCax2A5u5uc7UvB1Wr+wWdRktcWxIZdCmU=
 github.com/DarthRamone/telegram-bot-api v4.6.7+incompatible h1:IYXJ0PEUQaA8dxW2U0+OiYj+k0+ufiDAI8A0ZVIT4VU=
 github.com/DarthRamone/telegram-bot-api v4.6.7+incompatible/go.mod h1:60GaC58LlGCax2A5u5uc7UvB1Wr+wWdRktcWxIZdCmU=
 github.com/OneOfOne/xxhash v1.2.2/go.mod h1:HSdplMjZKSmBqAxg5vPj2TmRDmfkzw+cTzAElWljhcU=
@@ -53,6 +49,8 @@ github.com/envoyproxy/protoc-gen-validate v0.3.0/go.mod h1:iSmxcyjqTsJpI2R4NaDN7
 github.com/fatih/color v1.7.0/go.mod h1:Zm6kSWBoL9eyXnKyktHP6abPY2pDugNf5KwzbycvMj4=
 github.com/firefly-crm/common v0.0.12 h1:SypAw4ZoCArvWbLHh4xSkogWUxQy3at9qHeSXoijDFE=
 github.com/firefly-crm/common v0.0.12/go.mod h1:dK6+Oy3Y1RMDyplAqEJFs9VGpRegnoOJ7eI/1cHpvBA=
+github.com/firefly-crm/modulbank-go v0.0.7 h1:/L7lxdz3MfSizd2qzL0DAFFX46ucULILhMxO+T5CsxU=
+github.com/firefly-crm/modulbank-go v0.0.7/go.mod h1:rdR5R7FKR7pjYMgcAuT9saekNqn5aYjz6AVHO37F/F0=
 github.com/fsnotify/fsnotify v1.4.7 h1:IXs+QLmnXW2CcXuY+8Mzv/fWEsPGWxqefPtCP5CnV9I=
 github.com/fsnotify/fsnotify v1.4.7/go.mod h1:jwhsz4b93w/PPRr/qN1Yymfu8t87LnFCMoQvtojpjFo=
 github.com/ghodss/yaml v1.0.0/go.mod h1:4dBDuWmgqj2HViK6kFavaiC9ZROes6MMH2rRYeMEF04=
